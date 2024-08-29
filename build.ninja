@@ -1,5 +1,5 @@
-cflags = -target aarch64-elf -ffreestanding -O2 -Wall -Wextra -Isrc
-ldflags = -T linker.ld -O2
+cflags = -target aarch64-elf -ffreestanding -O2 -Wall -Wextra -Isrc -g -DAARCH64
+ldflags = -T linker.ld -O2 -g
 
 rule cc
   command = clang $cflags -c $in -o $out
