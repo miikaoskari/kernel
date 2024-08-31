@@ -14,6 +14,15 @@
 // x3 -> 0
 // x4 -> 32 bit kernel entry point, _start location
 _start:
+    mrs    x0, mpidr_el1
+    and    x0, x0,#0xFF        // Check processor id
+    cbz    x0, master        // Hang for all non-primary CPU
+    b    proc_hang
+
+proc_hang:
+    b proc_hang
+
+master:
     // Set up stack pointer to _start
     ldr     x5, =_start
     mov     sp, x5
