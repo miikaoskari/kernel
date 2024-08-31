@@ -46,6 +46,7 @@ enum {
 };
 
 // A Mailbox message with set clock rate of PL011 to 3MHz tag
+// starting from Raspberry Pi 3, the SoC is changed to BCM2837 and PL011 clock (UART0) is not fixed any more
 volatile unsigned int __attribute__((aligned(16))) mbox[9] = {
     9 * 4, 0, 0x38002, 12, 8, 2, 3000000, 0, 0};
 
@@ -121,5 +122,7 @@ unsigned char uart_getc() {
 
 void uart_puts(const char *str) {
   for (size_t i = 0; str[i] != '\0'; i++)
+  {
     uart_putc((unsigned char)str[i]);
+  }
 }
