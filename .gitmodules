@@ -1,0 +1,3 @@
+[submodule "src/utils/printk"]
+	path = src/utils/printk
+	url = git@github.com:miikaoskari/printk.git
