@@ -22,9 +22,10 @@ build build/main.o: cc src/main.c
 build build/uart/uart.o: cc src/uart/uart.c
 build build/mmio/mmio.o: cc src/mmio/mmio.c
 build build/delay/delay.o: cc src/delay/delay.c
+build build/utils/printk/printk.o: cc src/utils/printk/printk.c
 
-build os.elf: ld build/boot.o build/main.o build/uart/uart.o build/mmio/mmio.o build/delay/delay.o
-build kernel8.img: objcopy os.elf
+build kernel8.elf: ld build/boot.o build/main.o build/uart/uart.o build/mmio/mmio.o build/delay/delay.o build/utils/printk/printk.o
+build kernel8.img: objcopy kernel8.elf
 
 build compile_commands.json: generate_compile_commands
 
