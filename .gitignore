@@ -3,3 +3,4 @@ build/
 *.img
 .ninja_log
 .cache/
+compile_commands.json
