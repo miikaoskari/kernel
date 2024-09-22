@@ -1,11 +1,14 @@
+# kernel
 
-clang -target aarch64-elf -c src/boot.S -o build/boot.o
+## building
 
-clang -target aarch64-elf -ffreestanding -c src/main.c -o build/kernel.o -O2 -Wall -Wextra
+generate the build.ninja file with
+```bash
+python conf.py
+```
 
-ld.lld -T linker.ld -o os.elf -ffreestanding -O2 build/boot.o build/kernel.o
+then build with `ninja`
 
-llvm-objcopy os.elf -O binary kernel8.img
+## launch
+use `run.sh` to launch the kernel in qemu
 
-
-ninja -t compdb > compile_commands.json
