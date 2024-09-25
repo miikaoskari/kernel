@@ -32,5 +32,13 @@
 #define SPSR_EL1h			(5 << 0)
 #define SPSR_VALUE			(SPSR_MASK_ALL | SPSR_EL1h)
 
+/* CPACR_EL1, Architectural Feature Access Control Register (EL1) Page 2411 of AArch64-Reference-Manual. */
+
+#define CPACR_TTA           (1 << 28)
+#define CPACR_FPEN(value)   ((value & 0x3) << 20)
+#define CPACR_ZEN(value)    ((value & 0x3) << 16)
+
+#define CPACR_TTA_FPEN_ZEN_ENABLE   (CPACR_TTA | CPACR_FPEN(1) | CPACR_ZEN(1))
+
 #endif
 

@@ -31,6 +31,10 @@ master:
     ldr    x0, =SPSR_VALUE
     msr    spsr_el3, x0
 
+    // Access to trace, SVE, Advanced SIMD and floating-point functionality.
+    ldr    x0, =CPACR_TTA_FPEN_ZEN_ENABLE
+    msr    cpacr_el1, x0
+
     adr    x0, el1_entry
     msr    elr_el3, x0
 
