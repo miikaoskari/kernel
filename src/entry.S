@@ -10,7 +10,7 @@ b	halt
 .endm
 
 .macro  vector_entry   label
-# all exception vectors should be located at offset 0x80 bytes from another.
+# all vectors should be located at offset 0x80 bytes from another.
 # so, align with 7
 .align 7
 b	\label
@@ -58,8 +58,8 @@ eret
 .endm
 
 .align 11
-.globl exception_vectors
-exception_vectors:
+.globl vectors
+vectors:
     vector_entry    sync_invalid_el1t
     vector_entry    irq_invalid_el1t
     vector_entry    fiq_invalid_el1t
