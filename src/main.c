@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "uart/uart.h"
+#include "peripherals/uart/uart.h"
 #include "utils/printk/printk.h"
 
 #if defined(__cplusplus)
