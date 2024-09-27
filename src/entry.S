@@ -95,6 +95,9 @@ error_invalid_el1t:
 sync_invalid_el1h:
 	handle_invalid_entry  SYNC_INVALID_EL1h
 
+irq_invalid_el1h:
+    handle_invalid_entry  IRQ_INVALID_EL1h
+
 fiq_invalid_el1h:
 	handle_invalid_entry  FIQ_INVALID_EL1h
 
