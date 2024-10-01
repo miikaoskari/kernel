@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "irq/irq.h"
 #include "peripherals/uart/uart.h"
 #include "utils/printk/printk.h"
 
@@ -22,6 +23,8 @@ void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
 {
   uart_init(RP4);
   set_putc((putc_func_t)uart_putc);
+
+  enable_interrupt_controller();
 
   printk("Hello, world!\n");
 
