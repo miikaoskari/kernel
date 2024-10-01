@@ -66,7 +66,7 @@ vectors:
     vector_entry    error_invalid_el1t
 
     vector_entry    sync_invalid_el1h
-    vector_entry    irq_invalid_el1h
+    vector_entry    el1_irq
     vector_entry    fiq_invalid_el1h
     vector_entry    error_invalid_el1h
 
@@ -94,9 +94,6 @@ error_invalid_el1t:
 
 sync_invalid_el1h:
 	handle_invalid_entry  SYNC_INVALID_EL1h
-
-irq_invalid_el1h:
-    handle_invalid_entry  IRQ_INVALID_EL1h
 
 fiq_invalid_el1h:
 	handle_invalid_entry  FIQ_INVALID_EL1h
@@ -127,6 +124,11 @@ fiq_invalid_el0_32:
 
 error_invalid_el0_32:
 	handle_invalid_entry  ERROR_INVALID_EL0_32
+
+el1_irq:
+	kernel_entry
+	bl	handle_irq
+	kernel_exit
 
 .globl halt
 halt: b halt
