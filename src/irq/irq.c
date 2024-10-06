@@ -1,7 +1,7 @@
 #include "mmio/mmio.h"
 #include "utils/printk/printk.h"
-#include "peripherals/irq.h"
-#include "peripherals/timer/timer.h"
+#include "peripherals/bcm2711/irq.h"
+#include "peripherals/bcm2711/timer/timer.h"
 
 const char *entry_error_messages[] = {
     "SYNC_INVALID_EL1t",

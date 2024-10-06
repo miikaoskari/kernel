@@ -2,8 +2,8 @@
 #include <stdint.h>
 
 #include "irq/irq.h"
-#include "peripherals/uart/uart.h"
-#include "peripherals/timer/timer.h"
+#include "peripherals/bcm2711/uart/uart.h"
+#include "peripherals/bcm2711/timer/timer.h"
 #include "utils/printk/printk.h"
 
 #if defined(__cplusplus)

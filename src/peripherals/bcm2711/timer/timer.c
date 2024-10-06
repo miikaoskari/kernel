@@ -1,4 +1,4 @@
-#include "peripherals/timer/timer.h"
+#include "peripherals/bcm2711/timer/timer.h"
 #include "mmio/mmio.h"
 #include "utils/printk/printk.h"
 
