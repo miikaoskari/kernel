@@ -39,6 +39,7 @@ void show_invalid_entry_message(int type, unsigned long esr, unsigned long addre
 void handle_irq()
 {
     unsigned int irq = mmio_read(IRQ_PENDING_1);
+    printk("irq pending: %x\r\n", irq);
     switch (irq)
     {
     case (SYSTEM_TIMER_IRQ_1):
