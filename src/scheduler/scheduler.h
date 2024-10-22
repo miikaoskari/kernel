@@ -1,6 +1,20 @@
 #ifndef _SCHEDULER_H
 #define _SCHEDULER_H
 
+void preempt_disable();
+void preempt_enable();
+
+/* task states */
+#define TASK_RUNNING 0
+#define TASK_ZOMBIE 1
+#define TASK_STOPPED 2
+#define TASK_INTERRUPTIBLE 3
+#define TASK_UNINTERRUPTIBLE 4
+
+/* max task count */
+#define TASK_COUNT 128
+
+
 /**
  * @brief cpu context structure
  * only save x19-x28, fp, sp, pc because x0-x18 can be 
