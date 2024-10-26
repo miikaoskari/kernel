@@ -3,6 +3,8 @@
 
 void preempt_disable();
 void preempt_enable();
+void schedule();
+void timer_tick();
 
 /* task states */
 #define TASK_RUNNING 0

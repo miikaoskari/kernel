@@ -1,4 +1,5 @@
 #include "scheduler/scheduler.h"
+#include "peripherals/bcm2711/irq.h"
 
 static struct task_struct init_task = {
     .cpu_context = {0},
@@ -9,6 +10,9 @@ static struct task_struct init_task = {
 };
 struct task_struct *current = &init_task;
 struct task_struct *tasks[TASK_COUNT] = {&init_task, };
+
+extern void enable_irq();
+extern void disable_irq();
 
 /**
  * @brief disable preemption for the current task
@@ -28,13 +32,29 @@ void preempt_enable()
     current->preempt_count--;
 }
 
-void schedule()
+void _schedule()
 {
 
 }
 
-void schedule_tail()
+void schedule()
 {
+    current->counter = 0;
+    _schedule();
+}
 
+void timer_tick()
+{
+    current->counter--;
+    if (current->counter > 0 || current->preempt_count > 0)
+    {
+        return;
+    }
+
+    current->counter = 0;
+
+    enable_irq();
+    _schedule();
+    disable_irq();
 }
 
