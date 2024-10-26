@@ -34,7 +34,36 @@ void preempt_enable()
 
 void _schedule()
 {
+    preempt_disable();
+    int next, c;
+    struct task_struct *p;
 
+    while(1)
+    {
+        c = -1;
+        next = 0;
+        for (int i = 0; i < TASK_COUNT; i++)
+        {
+            p = tasks[i];
+            if (p && p->state == TASK_RUNNING && p->counter > c)
+            {
+                c = p->counter;
+                next = i;
+            }
+        }
+        if (c)
+        {
+            break;
+        }
+        for (int i = 0; i < TASK_COUNT; i++)
+        {
+            p = tasks[i];
+            if (p)
+            {
+                p->counter = (p->counter >> 1) + p->prio;
+            }
+        }
+    }
 }
 
 void schedule()
