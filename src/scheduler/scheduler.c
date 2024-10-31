@@ -11,8 +11,6 @@ static struct task_struct init_task = {
 struct task_struct *current = &init_task;
 struct task_struct *tasks[TASK_COUNT] = {&init_task, };
 
-extern void enable_irq();
-extern void disable_irq();
 
 /**
  * @brief disable preemption for the current task
@@ -70,6 +68,18 @@ void schedule()
 {
     current->counter = 0;
     _schedule();
+}
+
+void switch_to(struct task_struct *next)
+{
+    if (current == next)
+    {
+        return;
+    }
+
+    struct task_struct *prev = current;
+    current = next;
+    cpu_switch_to(prev, next);
 }
 
 void timer_tick()
