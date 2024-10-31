@@ -16,7 +16,6 @@ void timer_tick();
 /* max task count */
 #define TASK_COUNT 128
 
-
 /**
  * @brief cpu context structure
  * only save x19-x28, fp, sp, pc because x0-x18 can be 
@@ -45,5 +44,9 @@ struct task_struct {
     long prio; /* task priority copied over to counter. regulate cpu time */
     long preempt_count; /* 0 = preemptable, <0 = not preemptable */
 };
+
+extern void enable_irq();
+extern void disable_irq();
+extern void cpu_switch_to(struct task_struct *prev, struct task_struct *next);
 
 #endif
