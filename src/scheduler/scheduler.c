@@ -1,0 +1,99 @@
+#include "scheduler/scheduler.h"
+#include "peripherals/bcm2711/irq.h"
+
+static struct task_struct init_task = {
+    .cpu_context = {0},
+    .state = TASK_RUNNING,
+    .counter = 0,
+    .prio = 1,
+    .preempt_count = 1,
+};
+struct task_struct *current = &init_task;
+struct task_struct *tasks[TASK_COUNT] = {&init_task, };
+
+
+/**
+ * @brief disable preemption for the current task
+ * 
+ */
+void preempt_disable()
+{
+    current->preempt_count++;
+}
+
+/**
+ * @brief enable preemption for the current task
+ * 
+ */
+void preempt_enable()
+{
+    current->preempt_count--;
+}
+
+void _schedule()
+{
+    preempt_disable();
+    int next, c;
+    struct task_struct *p;
+
+    while(1)
+    {
+        c = -1;
+        next = 0;
+        for (int i = 0; i < TASK_COUNT; i++)
+        {
+            p = tasks[i];
+            if (p && p->state == TASK_RUNNING && p->counter > c)
+            {
+                c = p->counter;
+                next = i;
+            }
+        }
+        if (c)
+        {
+            break;
+        }
+        for (int i = 0; i < TASK_COUNT; i++)
+        {
+            p = tasks[i];
+            if (p)
+            {
+                p->counter = (p->counter >> 1) + p->prio;
+            }
+        }
+    }
+}
+
+void schedule()
+{
+    current->counter = 0;
+    _schedule();
+}
+
+void switch_to(struct task_struct *next)
+{
+    if (current == next)
+    {
+        return;
+    }
+
+    struct task_struct *prev = current;
+    current = next;
+    cpu_switch_to(prev, next);
+}
+
+void timer_tick()
+{
+    current->counter--;
+    if (current->counter > 0 || current->preempt_count > 0)
+    {
+        return;
+    }
+
+    current->counter = 0;
+
+    enable_irq();
+    _schedule();
+    disable_irq();
+}
+
