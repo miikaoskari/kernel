@@ -45,8 +45,6 @@ struct task_struct {
     long preempt_count; /* 0 = preemptable, <0 = not preemptable */
 };
 
-extern void enable_irq();
-extern void disable_irq();
 extern void cpu_switch_to(struct task_struct *prev, struct task_struct *next);
 
 #endif
