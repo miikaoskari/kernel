@@ -1,5 +1,5 @@
 #include "scheduler/scheduler.h"
-#include "peripherals/bcm2711/irq.h"
+#include "irq/irq.h"
 
 static struct task_struct init_task = {
     .cpu_context = {0},
@@ -10,6 +10,7 @@ static struct task_struct init_task = {
 };
 struct task_struct *current = &init_task;
 struct task_struct *tasks[TASK_COUNT] = {&init_task, };
+int task_count = 1;
 
 
 /**

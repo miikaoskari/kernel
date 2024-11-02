@@ -1,10 +1,8 @@
 #ifndef _SCHEDULER_H
 #define _SCHEDULER_H
 
-void preempt_disable();
-void preempt_enable();
-void schedule();
-void timer_tick();
+/* thread */
+#define THREAD_SIZE 4096
 
 /* task states */
 #define TASK_RUNNING 0
@@ -15,6 +13,9 @@ void timer_tick();
 
 /* max task count */
 #define TASK_COUNT 128
+
+#define FIRST_TASK task[0]
+#define LAST_TASK task[TASK_COUNT - 1]
 
 /**
  * @brief cpu context structure
@@ -45,6 +46,16 @@ struct task_struct {
     long preempt_count; /* 0 = preemptable, <0 = not preemptable */
 };
 
+void preempt_disable();
+void preempt_enable();
+void schedule();
+void timer_tick();
+
+extern struct task_struct *current;
+extern struct task_struct *task[TASK_COUNT];
+extern int task_count;
+
+/* asm */
 extern void cpu_switch_to(struct task_struct *prev, struct task_struct *next);
 
 #endif
