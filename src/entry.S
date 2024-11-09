@@ -1,4 +1,5 @@
 #include "entry.h"
+#include "scheduler/scheduler.h"
 
 	.macro handle_invalid_entry type
 	kernel_entry

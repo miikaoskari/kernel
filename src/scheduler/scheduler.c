@@ -9,7 +9,7 @@ static struct task_struct init_task = {
     .preempt_count = 1,
 };
 struct task_struct *current = &init_task;
-struct task_struct *tasks[TASK_COUNT] = {&init_task, };
+struct task_struct *task[TASK_COUNT] = {&init_task, };
 int task_count = 1;
 
 
@@ -43,7 +43,7 @@ void _schedule()
         next = 0;
         for (int i = 0; i < TASK_COUNT; i++)
         {
-            p = tasks[i];
+            p = task[i];
             if (p && p->state == TASK_RUNNING && p->counter > c)
             {
                 c = p->counter;
@@ -56,7 +56,7 @@ void _schedule()
         }
         for (int i = 0; i < TASK_COUNT; i++)
         {
-            p = tasks[i];
+            p = task[i];
             if (p)
             {
                 p->counter = (p->counter >> 1) + p->prio;
@@ -69,6 +69,11 @@ void schedule()
 {
     current->counter = 0;
     _schedule();
+}
+
+void schedule_tail()
+{
+    preempt_enable();
 }
 
 void switch_to(struct task_struct *next)
