@@ -22,13 +22,13 @@ jobs:
         run: ninja
       
       - name: Upload kernel8.img
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: kernel8.img
           path: kernel8.img
 
       - name: Upload kernel8.elf
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: kernel8.elf
           path: kernel8.elf
