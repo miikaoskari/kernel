@@ -24,6 +24,9 @@
 #define ERROR_INVALID_EL0_32 15
 
 
-void ret_from_fork();
+#ifndef __ASSEMBLER__
 
+extern void ret_from_fork();
+
+#endif
 #endif
