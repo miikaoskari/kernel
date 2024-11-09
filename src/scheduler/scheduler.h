@@ -1,6 +1,10 @@
 #ifndef _SCHEDULER_H
 #define _SCHEDULER_H
 
+#define THREAD_CPU_CONTEXT 0
+
+#ifndef __ASSEMBLER__
+
 /* thread */
 #define THREAD_SIZE 4096
 
@@ -58,4 +62,5 @@ extern int task_count;
 /* asm */
 extern void cpu_switch_to(struct task_struct *prev, struct task_struct *next);
 
+#endif
 #endif
