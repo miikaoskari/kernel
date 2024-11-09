@@ -58,6 +58,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        submodules: true
+        
 
     - name: Install tools
       run: sudo apt install ninja-build llvm lld python3
