@@ -15,6 +15,7 @@ int copy_process(unsigned long fn, unsigned long arg)
         return 1;
     }
 
+    p->prio = current->prio;
     p->state = TASK_RUNNING;
     p->counter = p->prio;
     p->preempt_count = 1;
@@ -23,10 +24,9 @@ int copy_process(unsigned long fn, unsigned long arg)
     p->cpu_context.x20 = arg;
     p->cpu_context.pc = (unsigned long)ret_from_fork;
     p->cpu_context.sp = (unsigned long)p + THREAD_SIZE;
-    
+
     int pid = task_count++;
-
-
-
-
+    task[pid] = p;
+    preempt_enable();
+    return 0;
 }
