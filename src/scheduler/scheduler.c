@@ -31,6 +31,10 @@ void preempt_enable()
     current->preempt_count--;
 }
 
+/**
+ * @brief schedule the next task to run
+ * 
+ */
 void _schedule()
 {
     preempt_disable();
@@ -41,6 +45,8 @@ void _schedule()
     {
         c = -1;
         next = 0;
+
+        /* find the task with the highest priority */
         for (int i = 0; i < TASK_COUNT; i++)
         {
             p = task[i];
@@ -54,6 +60,7 @@ void _schedule()
         {
             break;
         }
+        /* increment task counters, can never be larger than 2 * prio */
         for (int i = 0; i < TASK_COUNT; i++)
         {
             p = task[i];
@@ -63,8 +70,14 @@ void _schedule()
             }
         }
     }
+    switch_to(task[next]);
+    preempt_enable();
 }
 
+/**
+ * @brief schedule the next task to run
+ * 
+ */
 void schedule()
 {
     current->counter = 0;
@@ -76,6 +89,11 @@ void schedule_tail()
     preempt_enable();
 }
 
+/**
+ * @brief switch to the next task
+ *
+ * @param next the next task to switch to
+ */
 void switch_to(struct task_struct *next)
 {
     if (current == next)
@@ -88,6 +106,10 @@ void switch_to(struct task_struct *next)
     cpu_switch_to(prev, next);
 }
 
+/**
+ * @brief timer tick handler
+ *
+ */
 void timer_tick()
 {
     current->counter--;

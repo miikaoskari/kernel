@@ -54,6 +54,7 @@ void preempt_disable();
 void preempt_enable();
 void schedule();
 void timer_tick();
+void switch_to(struct task_struct *next);
 #ifndef __ASSEMBLER__
 void schedule_tail();
 #endif
