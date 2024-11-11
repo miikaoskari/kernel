@@ -3,6 +3,14 @@
 #include "mem/mem.h"
 #include "entry.h"
 
+/**
+ * @brief Create a new process
+ *
+ * @param fn Function to run
+ * @param arg Argument to pass to the function
+ *
+ * @return int 0 if successful, 1 if not
+ */
 int copy_process(unsigned long fn, unsigned long arg)
 {
     preempt_disable();
@@ -30,3 +38,4 @@ int copy_process(unsigned long fn, unsigned long arg)
     preempt_enable();
     return 0;
 }
+
