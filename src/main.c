@@ -4,7 +4,10 @@
 #include "irq/irq.h"
 #include "peripherals/bcm2711/uart/uart.h"
 #include "peripherals/bcm2711/timer/timer.h"
+#include "scheduler/fork.h"
+#include "scheduler/scheduler.h"
 #include "utils/printk/printk.h"
+#include "delay/delay.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
@@ -15,6 +18,16 @@ extern "C" /* Use C linkage for kernel_main. */
 extern int get_el(void);
 extern void enable_irq(void);
 extern void irq_vector_init(void);
+
+void process1(char *array)
+{
+  printk("Process %s started\n", array);
+  while (1)
+  {
+    printk("Process %s running\n", array);
+    delay(1000000);
+  }
+}
 
 #ifdef AARCH64
 // arguments for AArch64
@@ -34,7 +47,19 @@ void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
   int el = get_el();
   printk("Current exception level: %d\n", el);
 
+  int ret = copy_process((unsigned long)&process1, (unsigned long)"test");
+  if (ret)
+  {
+    printk("Failed to create process\n");
+  }
+
+  ret = copy_process((unsigned long)&process1, (unsigned long)"test");
+  if (ret)
+  {
+    printk("Failed to create process\n");
+  }
+
   while (1) {
-    uart_putc(uart_getc());
+    schedule();
   }
 }
