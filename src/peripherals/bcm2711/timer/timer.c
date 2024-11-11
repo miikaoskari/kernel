@@ -1,5 +1,6 @@
 #include "peripherals/bcm2711/timer/timer.h"
 #include "mmio/mmio.h"
+#include "scheduler/scheduler.h"
 #include "utils/printk/printk.h"
 
 const unsigned int interval = 200000;
@@ -36,4 +37,5 @@ void handle_timer_irq(void)
     mmio_write(TIMER_C1, current_time);
     mmio_write(TIMER_CS, TIMER_CS_M1);
     printk("timer interrupt\n");
+    timer_tick();
 }
