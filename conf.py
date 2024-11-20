@@ -3,11 +3,11 @@ import os
 source_dirs = ['src']
 build_dir = 'build'
 
-cc = 'clang'
-ld = 'ld.lld'
-objcopy = 'llvm-objcopy'
-cflags = '-target aarch64-elf -ffreestanding -O2 -Wall -Wextra -Isrc -g -DAARCH64'
-ldflags = '-T linker.ld -O2 -g'
+cc = 'aarch64-none-elf-gcc'
+ld = 'aarch64-none-elf-ld'
+objcopy = 'aarch64-none-elf-objcopy'
+cflags = '-ffreestanding -Wall -Wextra -Isrc -g -DAARCH64'
+ldflags = '-T linker.ld -g'
 
 c_files = []
 s_files = []
@@ -52,3 +52,4 @@ build_ninja_content += f"default kernel8.img compile_commands.json\n"
 
 with open('build.ninja', 'w') as f:
     f.write(build_ninja_content)
+
