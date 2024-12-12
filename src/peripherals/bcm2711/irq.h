@@ -7,7 +7,7 @@
  * Revision r0p1 */
 #define GIC_BASE		(0x4c0040000)
 #define GICD_BASE		(GIC_BASE + 0x1000)
-#define GIDD_BASE		(GIC_BASE + 0x2000)
+#define GICC_BASE		(GIC_BASE + 0x2000)
 #define GICH_BASE		(GIC_BASE + 0x4000)
 #define GICV_BASE		(GIC_BASE + 0x5000)
 
