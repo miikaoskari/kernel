@@ -16,7 +16,7 @@ extern "C" /* Use C linkage for kernel_main. */
 #define RP4 4
 
 extern int get_el(void);
-extern void enable_irq(void);
+//extern void enable_irq(void);
 extern void irq_vector_init(void);
 
 void process1(char *array)
@@ -25,7 +25,7 @@ void process1(char *array)
   while (1)
   {
     printk("Process %s running\n", array);
-    delay(1000000);
+    delay(10);
   }
 }
 
@@ -42,7 +42,7 @@ void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
   irq_vector_init();
   timer_init();
   enable_interrupt_controller();
-  enable_irq();
+  //enable_irq();
 
   int el = get_el();
   printk("Current exception level: %d\n", el);

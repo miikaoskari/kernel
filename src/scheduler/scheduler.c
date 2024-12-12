@@ -120,8 +120,8 @@ void timer_tick()
 
     current->counter = 0;
 
-    enable_irq();
+    //enable_irq();
     _schedule();
-    disable_irq();
+    //disable_irq();
 }
 
