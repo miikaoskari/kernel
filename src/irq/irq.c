@@ -44,14 +44,13 @@ void enable_irq(unsigned int interrupt_id)
     mmio_write(register_offset, 1 << bit_number);
 }
 
-
 /* For interrupt ID m, when DIV and MOD are the integer division and modulo operations. */
 void assign_target_cpu(unsigned int interrupt_id, unsigned int cpu_id)
 {
     /* The corresponding GICD_ITARGETSR<n> number, n, is given by n = m DIV 4. */
     unsigned int n = interrupt_id / 4;
     /* The offset of the required GICD_ITARGETSR<n> register is (0x800 + (4*n)) */
-    unsigned int register_offset = GICD_ISENABLER_BASE + (4 * n);
+    unsigned int register_offset = GICD_ITARGETSR_BASE + (4 * n);
     /* Get current value of the register */
     unsigned int current_register_value = mmio_read(register_offset);
     /* Set the correct CPU target */
@@ -59,10 +58,22 @@ void assign_target_cpu(unsigned int interrupt_id, unsigned int cpu_id)
 
 }
 
+void enable_with_daif()
+{
+    /* enable IRQ with daifclr */
+    asm volatile("msr daifclr, #2");
+}
+
+void disable_with_daif()
+{
+    /* disable IRQ with daifset */
+    asm volatile("msr daifset, #2");
+}
 
 void enable_interrupt_controller()
 {
     /* enable system timer irq */
+    enable_with_daif();
     assign_target_cpu(SYSTEM_TIMER_IRQ_1, CPU_INTERFACE_0);
     enable_irq(SYSTEM_TIMER_IRQ_1);
 }
