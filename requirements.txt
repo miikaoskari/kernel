@@ -1,0 +1,3 @@
+cmsis-svd==0.4
+Pygments==2.18.0
+six==1.17.0
