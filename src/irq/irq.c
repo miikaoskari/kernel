@@ -2,13 +2,10 @@
 #include "utils/printk/printk.h"
 #include "peripherals/bcm2711/timer/timer.h"
 #include "peripherals/bcm2711/irq.h"
+#include "peripherals/bcm2711/bcm2711_lpa.h"
+#include "peripherals/bcm2711/core_ca72.h"
+#include <stdint.h>
 
-#define CPU_INTERFACE_0 (0)
-#define CPU_INTERFACE_1 (1)
-#define CPU_INTERFACE_2 (2)
-#define CPU_INTERFACE_3 (3)
-
-#define MAX_INTERFACE_COUNT (4)
 
 const char *entry_error_messages[] = {
     "SYNC_INVALID_EL1t",
@@ -32,6 +29,16 @@ const char *entry_error_messages[] = {
     "ERROR_INVALID_EL0_32",
 };
 
+/* get current cpu using mpidr register */
+static uint8_t get_current_cpu()
+{
+    uint32_t mpidr = 0;
+    __asm__("mrs     %[mpidr], mpidr_el1"
+            : /* No outputs. */
+            : [mpidr] "r" (mpidr));
+    return mpidr & 0xff;
+}
+
 void enable_irq(unsigned int interrupt_id)
 {
     /* The corresponding GICD_ISENABLER<n> number, n, is given by n = m DIV 32. */
@@ -47,6 +54,8 @@ void enable_irq(unsigned int interrupt_id)
 /* For interrupt ID m, when DIV and MOD are the integer division and modulo operations. */
 void assign_target_cpu(unsigned int interrupt_id, unsigned int cpu_id)
 {
+    /* enable IRQ with daifclr */
+    asm volatile("msr daifclr, #2");
     /* The corresponding GICD_ITARGETSR<n> number, n, is given by n = m DIV 4. */
     unsigned int n = interrupt_id / 4;
     /* The offset of the required GICD_ITARGETSR<n> register is (0x800 + (4*n)) */
@@ -55,26 +64,20 @@ void assign_target_cpu(unsigned int interrupt_id, unsigned int cpu_id)
     unsigned int current_register_value = mmio_read(register_offset);
     /* Set the correct CPU target */
     mmio_write(register_offset, current_register_value | 1 << cpu_id);
-
 }
 
-void enable_with_daif()
-{
-    /* enable IRQ with daifclr */
-    asm volatile("msr daifclr, #2");
-}
-
-void disable_with_daif()
+void disable_irq()
 {
     /* disable IRQ with daifset */
     asm volatile("msr daifset, #2");
+    return; 
 }
 
 void enable_interrupt_controller()
 {
     /* enable system timer irq */
-    enable_with_daif();
-    assign_target_cpu(SYSTEM_TIMER_IRQ_1, CPU_INTERFACE_0);
+    uint8_t cpu_id = get_current_cpu();
+    assign_target_cpu(SYSTEM_TIMER_IRQ_1, cpu_id);
     enable_irq(SYSTEM_TIMER_IRQ_1);
 }
 
