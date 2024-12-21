@@ -103,7 +103,7 @@ typedef enum {
 /** @} */ /* End of group Configuration_of_CMSIS */
 
 #include "core_ca72.h"                          /*!< ARM Cortex-A72 processor and core peripherals                             */
-#include "system_bcm2711_lpa.h"                 /*!< bcm2711_lpa System                                                        */
+//#include "system_bcm2711_lpa.h"                 /*!< bcm2711_lpa System                                                        */
 
 #ifndef __IM                                    /*!< Fallback for older CMSIS versions                                         */
   #define __IM   __I
