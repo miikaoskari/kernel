@@ -1,6 +1,8 @@
+#include "irq/irq.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "mmio/mmio.h"
+#include "peripherals/bcm2711/cpu.h"
 #include "utils/printk/printk.h"
 #include "peripherals/bcm2711/timer/timer.h"
 #include "peripherals/bcm2711/bcm2711_lpa.h"
@@ -52,7 +54,7 @@ void enable_irqs()
     return;
 }
 
-void disable_irq()
+void disable_irqs()
 {
     /* disable IRQ with daifset */
     asm volatile("msr   daifset, #2");
@@ -60,10 +62,21 @@ void disable_irq()
     return; 
 }
 
+void enable_irq(IRQn_Type irq)
+{
+    COMPLETE_MEMORY_READS;
+    volatile uint8_t* targets = (volatile uint8_t*) &GIC_DIST->GICD_ITARGETSR;
+    targets[irq] |= 1 << get_current_cpu();
+    volatile uint32_t* enabled = (volatile uint32_t*) &GIC_DIST->GICD_ISENABLER;
+    enabled[irq / 32] = 1 << (irq % 32);
+    COMPLETE_MEMORY_READS;
+    return;
+}
+
 void enable_interrupt_controller()
 {
     /* enable system timer irq */
-    uint8_t cpu_id = get_current_cpu();
+    enable_irq(TIMER_0_IRQn);
 }
 
 void show_invalid_entry_message(int type, unsigned long esr, unsigned long address)
