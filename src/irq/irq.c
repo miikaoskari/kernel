@@ -1,16 +1,15 @@
-#include "irq/irq.h"
-#include <stdint.h>
 #include <stdbool.h>
-#include "mmio/mmio.h"
-#include "peripherals/bcm2711/cpu.h"
-#include "utils/printk/printk.h"
-#include "peripherals/bcm2711/timer/timer.h"
+#include <stddef.h>
+#include <stdint.h>
+
+#include "irq/irq.h"
 #include "peripherals/bcm2711/bcm2711_lpa.h"
 #include "peripherals/bcm2711/core_ca72.h"
+#include "peripherals/bcm2711/cpu.h"
+#include "peripherals/bcm2711/interrupt_handlers.h"
+#include "utils/printk/printk.h"
 
-static IRQn_Type _current_interrupt;
-
-const char *entry_error_messages[] = {
+const char* entry_error_messages[] = {
     "SYNC_INVALID_EL1t",
     "IRQ_INVALID_EL1t",
     "FIQ_INVALID_EL1t",
@@ -36,9 +35,9 @@ const char *entry_error_messages[] = {
 static uint8_t get_current_cpu(void)
 {
     uint32_t mpidr = 0;
-    __asm__("mrs     %[mpidr], mpidr_el1"
-            : /* No outputs. */
-            : [mpidr] "r" (mpidr));
+    asm volatile("mrs     %[mpidr], mpidr_el1"
+        : /* No outputs. */
+        : [mpidr] "r"(mpidr));
     return mpidr & 0xff;
 }
 
@@ -59,15 +58,15 @@ void disable_irqs(void)
     /* disable IRQ with daifset */
     asm volatile("msr   daifset, #2");
     asm volatile("isb");
-    return; 
+    return;
 }
 
 void enable_irq(IRQn_Type irq)
 {
     COMPLETE_MEMORY_READS;
-    volatile uint8_t* targets = (volatile uint8_t*) &GIC_DIST->GICD_ITARGETSR;
+    volatile uint8_t* targets = (volatile uint8_t*)&GIC_DIST->GICD_ITARGETSR;
     targets[irq] |= 1 << get_current_cpu();
-    volatile uint32_t* enabled = (volatile uint32_t*) &GIC_DIST->GICD_ISENABLER;
+    volatile uint32_t* enabled = (volatile uint32_t*)&GIC_DIST->GICD_ISENABLER;
     enabled[irq / 32] = 1 << (irq % 32);
     COMPLETE_MEMORY_READS;
     return;
@@ -86,14 +85,46 @@ void show_invalid_entry_message(int type, unsigned long esr, unsigned long addre
 
 void handle_irq(void)
 {
-    /* Get the interrupt acknowledge register.
-     * Register changes state after reading. */
-    uint32_t current_interrupt = GIC_CPU->GICC_IAR;
+    COMPLETE_MEMORY_READS;
 
-    /* Get id of the current interrupt */
-    uint32_t interrupt_id = current_interrupt & ARM_GIC400_CPU_GICC_IAR_INTERRUPT_ID_Msk;
-    printk("irq pending! id: %x\r\n", interrupt_id);
+    while (GIC_CPU->GICC_HPPIR_b.INTERRUPT_ID < INTERRUPT_COUNT) {
+        /* Get the interrupt acknowledge register.
+         * Register changes state after reading. */
+        uint32_t current_interrupt = GIC_CPU->GICC_IAR;
 
+        /* Get id of the current interrupt */
+        uint32_t interrupt_id = current_interrupt & ARM_GIC400_CPU_GICC_IAR_INTERRUPT_ID_Msk;
+        printk("irq pending! id: %x\r\n", interrupt_id);
 
+        /* check if interrupt is in range */
+        if (interrupt_id >= INTERRUPT_COUNT)
+        {
+            break;
+        }
 
+        /* allow preemption */
+        enable_irqs();
+
+        /* get matching handler for id */
+        void(*handler)(void) = interrupt_handlers[interrupt_id];
+
+        if (handler == NULL)
+        {
+            /* unhandled interrupt */
+            while(1) {}
+        }
+
+        COMPLETE_MEMORY_READS;
+        handler();
+        COMPLETE_MEMORY_READS;
+
+        /* turn off interrupts */
+        disable_irqs();
+
+        GIC_CPU->GICC_EOIR = current_interrupt;
+    }
+    COMPLETE_MEMORY_READS;
+    enable_irqs();
+
+    return;
 }
