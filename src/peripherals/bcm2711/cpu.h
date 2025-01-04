@@ -5,4 +5,3 @@
  * memory barrier instruction. */
 #define COMPLETE_MEMORY_READS asm volatile ("dsb sy")
 #define STRICT_ALIGN __attribute__((target("strict-align")))
-

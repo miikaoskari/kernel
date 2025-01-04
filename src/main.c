@@ -16,7 +16,6 @@ extern "C" /* Use C linkage for kernel_main. */
 #define RP4 4
 
 extern int get_el(void);
-extern void irq_vector_init(void);
 
 void process1(char *array)
 {
