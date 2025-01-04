@@ -33,7 +33,7 @@ const char *entry_error_messages[] = {
 };
 
 /* get current cpu using mpidr register */
-static uint8_t get_current_cpu()
+static uint8_t get_current_cpu(void)
 {
     uint32_t mpidr = 0;
     __asm__("mrs     %[mpidr], mpidr_el1"
@@ -43,7 +43,7 @@ static uint8_t get_current_cpu()
 }
 
 /* enable cpu local irqs */
-void enable_irqs()
+void enable_irqs(void)
 {
     /* [0..0] Enable signaling of group 0 */
     GIC_CPU->GICC_CTLR_b.ENABLE_GROUP_0 = true;
@@ -54,7 +54,7 @@ void enable_irqs()
     return;
 }
 
-void disable_irqs()
+void disable_irqs(void)
 {
     /* disable IRQ with daifset */
     asm volatile("msr   daifset, #2");
@@ -73,7 +73,7 @@ void enable_irq(IRQn_Type irq)
     return;
 }
 
-void enable_interrupt_controller()
+void enable_interrupt_controller(void)
 {
     /* enable system timer irq */
     enable_irq(TIMER_0_IRQn);
@@ -84,7 +84,7 @@ void show_invalid_entry_message(int type, unsigned long esr, unsigned long addre
     printk("%s, ESR: %x, address: %x\r\n", entry_error_messages[type], esr, address);
 }
 
-void handle_irq()
+void handle_irq(void)
 {
     /* Get the interrupt acknowledge register.
      * Register changes state after reading. */

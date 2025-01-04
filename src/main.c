@@ -16,7 +16,6 @@ extern "C" /* Use C linkage for kernel_main. */
 #define RP4 4
 
 extern int get_el(void);
-//extern void enable_irq(void);
 extern void irq_vector_init(void);
 
 void process1(char *array)
@@ -41,8 +40,10 @@ void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
   set_putc((putc_func_t)uart_putc);
   irq_vector_init();
   timer_init();
+
+  // enable gic
+  enable_irqs();
   enable_interrupt_controller();
-  //enable_irq();
 
   int el = get_el();
   printk("Current exception level: %d\n", el);

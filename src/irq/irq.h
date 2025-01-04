@@ -1,13 +1,17 @@
 #ifndef IRQ_H
 #define IRQ_H
 
-void enable_interrupt_controller();
-void show_invalid_entry_message(int type, unsigned long esr, unsigned long address);
-void handle_irq();
+#include <stdint.h>
+#include "peripherals/bcm2711/bcm2711_lpa.h"
 
-void enable_irq();
-void enable_with_daif();
-void disable_with_daif();
-extern void irq_vector_init();
+void enable_interrupt_controller(void);
+void show_invalid_entry_message(int type, unsigned long esr, unsigned long address);
+
+void handle_irq(void);
+void enable_irqs(void);
+void disable_irqs(void);
+
+void enable_irq(IRQn_Type irq);
+extern void irq_vector_init(void);
 
 #endif
