@@ -15,7 +15,7 @@ int task_count = 1;
 
 /**
  * @brief disable preemption for the current task
- * 
+ *
  */
 void preempt_disable()
 {
@@ -24,7 +24,7 @@ void preempt_disable()
 
 /**
  * @brief enable preemption for the current task
- * 
+ *
  */
 void preempt_enable()
 {
@@ -33,7 +33,7 @@ void preempt_enable()
 
 /**
  * @brief schedule the next task to run
- * 
+ *
  */
 void _schedule()
 {
@@ -76,7 +76,7 @@ void _schedule()
 
 /**
  * @brief schedule the next task to run
- * 
+ *
  */
 void schedule()
 {
@@ -120,8 +120,7 @@ void timer_tick()
 
     current->counter = 0;
 
-    //enable_irq();
+    enable_irqs();
     _schedule();
-    //disable_irq();
+    disable_irqs();
 }
-
