@@ -31,3 +31,6 @@ load the kernel8.elf to the raspi4b `(gdb) load kernel8.elf`
 
 start debugging!
 
+## info
+
+- raspi4b is in low peripheral mode by default!
