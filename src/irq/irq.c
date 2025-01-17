@@ -53,6 +53,7 @@ void enable_irqs(void)
     return;
 }
 
+/* disable irqs */
 void disable_irqs(void)
 {
     /* disable IRQ with daifset */
@@ -61,6 +62,7 @@ void disable_irqs(void)
     return;
 }
 
+/* enable specific irq type */
 void enable_irq(IRQn_Type irq)
 {
     COMPLETE_MEMORY_READS;
