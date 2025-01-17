@@ -50,17 +50,23 @@
 
 #define MT_DEVICE_nGnRnE 0x0
 #define MT_NORMAL_NC 0x1
+#define MT_READONLY 0x2
 #define MT_DEVICE_nGnRnE_FLAGS 0x00
 #define MT_NORMAL_NC_FLAGS 0x44
-#define MAIR_VALUE (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE)) | (MT_NORMAL_NC_FLAGS << (8 * MT_NORMAL_NC))
+#define MT_READONLY_FLAGS 0xff
+#define MAIR_VALUE (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE)) | (MT_NORMAL_NC_FLAGS << (8 * MT_NORMAL_NC)) | (MT_READONLY_FLAGS) << (8 * MT_READONLY)
 
 /* TCR_EL1, Translation Control Register (EL1) Page 2685 of
  * AArch64-Reference-Manual. */
 
-#define TCR_T0SZ (64 - 48)
-#define TCR_T1SZ ((64 - 48) << 16)
+#define TCR_T0SZ (64 - 36)
+#define TCR_PS (0x01 << 16) // 36-bit physical address
 #define TCR_TG0_4K (0 << 14)
-#define TCR_TG1_4K (2 << 30)
-#define TCR_VALUE (TCR_T0SZ | TCR_T1SZ | TCR_TG0_4K | TCR_TG1_4K)
+#define TCR_IPS_64G (1ull << 32)
+#define TCR_SH0_OUTER_SHAREABLE (0x2 << 12)
+#define TCR_SH0_INNER_SHAREABLE (0x3 << 12)
+#define OUTER_CACHEABLE (0x1 << 10)
+#define INNER_CACHEABLE (0x1 << 8)
+#define TCR_VALUE (TCR_IPS_64G | OUTER_CACHEABLE | INNER_CACHEABLE | TCR_T0SZ | TCR_PS | TCR_TG0_4K | TCR_SH0_INNER_SHAREABLE)
 
 #endif /* SYSREGS_H */
