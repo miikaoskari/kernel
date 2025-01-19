@@ -47,6 +47,27 @@ extern volatile unsigned char _end;
  */
 uint64_t pl0_table[512] __attribute__((aligned(4096)));
 
+static void mmu_enable(void)
+{
+    /* set M bit 0 to enable mmu */
+    asm volatile(
+        "MSR TTBR0_EL1, X0"
+        "MSR TTBR1_EL1, X1"
+        "MSR TCR_EL1, X2"
+        "ISB"
+        "MRS X0, SCTLR_EL1"
+        "ORR X0, X0, #1"
+        "MSR SCTLR_EL1, X0"
+        "ISB"
+    );
+}
+
+static void mmu_disable(void)
+{
+    /* clear M bit 0 to disable mmu */
+    //asm volatile();
+}
+
 STRICT_ALIGN void mmu_init(void)
 {
     /* configure the sysregs to use mmu */
