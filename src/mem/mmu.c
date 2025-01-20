@@ -6,9 +6,12 @@
 #include "mem/mmu.h"
 #include "peripherals/bcm2711/cpu.h"
 
-/* addresses from linker */
-extern volatile unsigned char _data;
-extern volatile unsigned char _end;
+/* raspi4b address map
+ * SDRAM 0x0_0000_0000 - 0x0_4000_0000
+ * Peripherals 0x0_FC00_0000 - 0x1_0000_0000
+ * PCIe 0x6_0000_0000 - 0x7_FFFF_FFFF
+ */
+
 
 /* use granule of 4KB.
  * use table indexes from 0 to 3.
@@ -45,38 +48,58 @@ extern volatile unsigned char _end;
  *  +-------------------------------------------------> [63] TTBR0/1*
  * from linux/Documentation/arch/arm64/memory.rst
  */
-uint64_t pl0_table[512] __attribute__((aligned(4096)));
 
-static void mmu_enable(void)
+uint64_t l0_table[TABLE_SIZE] __attribute__((aligned(4096)));
+uint64_t l1_table[TABLE_SIZE] __attribute__((aligned(4096)));
+uint64_t l2_table[TABLE_SIZE] __attribute__((aligned(4096)));
+uint64_t l3_table[TABLE_SIZE] __attribute__((aligned(4096)));
+
+static void paging_init(void)
 {
-    /* set M bit 0 to enable mmu */
-    asm volatile(
-        "MSR TTBR0_EL1, X0"
-        "MSR TTBR1_EL1, X1"
-        "MSR TCR_EL1, X2"
-        "ISB"
-        "MRS X0, SCTLR_EL1"
-        "ORR X0, X0, #1"
-        "MSR SCTLR_EL1, X0"
-        "ISB"
-    );
+    l0_table[0] = (uint64_t)l1_table
+        | MM_DESCRIPTOR_TABLE
+        | MM_DESCRIPTOR_VALID;
+
+    l1_table[0] = (uint64_t)l2_table
+        | MM_DESCRIPTOR_TABLE
+        | MM_DESCRIPTOR_VALID;
+
+    l2_table[0] = (uint64_t)l3_table
+        | MM_DESCRIPTOR_TABLE
+        | MM_DESCRIPTOR_VALID;
+
+    /* map sdram */
+    for (uint64_t i = 0; i < 0x40000; i++)
+    {
+        uint64_t paddr = i * PAGE_SIZE;
+        l3_table[i] = paddr
+            | MMU_FLAGS
+            | MM_DESCRIPTOR_VALID;
+    }
+
+    /* map peripherals */
+    for (uint64_t i = 0xFC00; i < 0x10000; i++)
+    {
+        uint64_t paddr = i * PAGE_SIZE;
+        l3_table[i] = paddr
+            | MMU_DEVICE_FLAGS
+            | MM_DESCRIPTOR_VALID;
+    }
 }
 
-static void mmu_disable(void)
-{
-    /* clear M bit 0 to disable mmu */
-    //asm volatile();
-}
-
-STRICT_ALIGN void mmu_init(void)
+static void enable_mmu(void)
 {
     /* configure the sysregs to use mmu */
     uint64_t mair = MAIR_VALUE;
     uint64_t tcr = TCR_VALUE;
-    uint64_t ttbr0 = ((uint64_t)pl0_table) | MM_TTBR_CNP;
+
+    /* user */
+    uint64_t ttbr0 = ((uint64_t)l0_table) | MM_TTBR_CNP;
+    /* kernel */
+    uint64_t ttbr1 = ((uint64_t)l0_table) | MM_TTBR_CNP;
 
     uint64_t sctlr = 0;
-    asm volatile(
+    asm volatile (
         // The ISB forces these changes to be seen before any other registers are changed
         "ISB\n\t"
         // Clear the TLB
@@ -85,6 +108,8 @@ STRICT_ALIGN void mmu_init(void)
         "MSR MAIR_EL1, %[mair]\n\t"
         // Set TTBR0
         "MSR TTBR0_EL1, %[ttbr0]\n\t"
+        // Set TTBR1
+        "MSR TTBR1_EL1, %[ttbr1]\n\t"
         // Set TCR
         "MSR TCR_EL1, %[tcr]\n\t"
         // The ISB forces these changes to be seen before the MMU is enabled.
@@ -99,8 +124,19 @@ STRICT_ALIGN void mmu_init(void)
         // The ISB forces these changes to be seen by the next instruction
         "ISB\n\t"
         : /* No outputs. */
-        : [mair] "r"(mair),
-        [tcr] "r"(tcr),
-        [ttbr0] "r"(ttbr0),
-        [sctlr] "r"(sctlr));
+        : [mair] "r" (mair),
+          [tcr] "r" (tcr),
+          [ttbr0] "r" (ttbr0),
+          [ttbr1] "r" (ttbr1),
+          [sctlr] "r" (sctlr)
+    );
+}
+
+STRICT_ALIGN void mmu_init(void)
+{
+    /* init 4 levels of pages. */
+    paging_init();
+
+    /* enable mmu */
+    enable_mmu();
 }

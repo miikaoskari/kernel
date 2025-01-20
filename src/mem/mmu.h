@@ -3,6 +3,9 @@
 
 #include "arm/sysregs.h"
 
+#define TABLE_SIZE 512
+#define PAGE_SIZE 0x1000
+
 #define MM_TYPE_PAGE_TABLE 0x3
 #define MM_TYPE_PAGE 0x3
 #define MM_TYPE_BLOCK 0x1
@@ -13,12 +16,33 @@
 #define MMU_DEVICE_FLAGS (MM_TYPE_BLOCK | (MT_DEVICE_nGnRnE << 2) | MM_ACCESS)
 #define MMU_PTE_FLAGS (MM_TYPE_PAGE | (MT_NORMAL_NC << 2) | MM_ACCESS | MM_ACCESS_PERMISSION)
 
+#define MT_DEVICE_nGnRnE         0x0
+#define MT_NORMAL_NC            0x1
+#define MT_READONLY             0x2
+#define MT_DEVICE_nGnRnE_FLAGS      0x00
+#define MT_NORMAL_NC_FLAGS          0x44
+#define MT_READONLY_FLAGS           0xff
+#define MAIR_VALUE            (MT_DEVICE_nGnRnE_FLAGS << (8 * MT_DEVICE_nGnRnE)) | \
+                              (MT_NORMAL_NC_FLAGS << (8 * MT_NORMAL_NC)) | \
+                              (MT_READONLY_FLAGS) << (8 * MT_READONLY)
+
+#define TCR_T0SZ            (64 - 36)
+#define TCR_PS              (0x01 << 16) // 36-bit physical address
+#define TCR_TG0_4K          (0 << 14)
+#define TCR_IPS_64G         (1ull << 32)
+#define TCR_SH0_OUTER_SHAREABLE (0x2 << 12)
+#define TCR_SH0_INNER_SHAREABLE (0x3 << 12)
+#define OUTER_CACHEABLE     (0x1 << 10)
+#define INNER_CACHEABLE     (0x1 << 8)
+#define TCR_VALUE           (TCR_IPS_64G | OUTER_CACHEABLE | INNER_CACHEABLE | TCR_T0SZ | TCR_PS | TCR_TG0_4K | TCR_SH0_INNER_SHAREABLE)
+
 #define ENTRY_TYPE_TABLE_DESCRIPTOR 0x11
 #define ENTRY_TYPE_BLOCK_ENTRY 0x01
 #define ENTRY_TYPE_TABLE_ENTRY 0x11
 #define ENTRY_TYPE_INVALID 0x00
 
 #define MM_DESCRIPTOR_VALID (0x1)
+
 #define MM_DESCRIPTOR_BLOCK (0x0 << 1)
 #define MM_DESCRIPTOR_TABLE (0x1 << 1)
 
@@ -34,5 +58,7 @@
 #define MM_DESCRIPTOR_MAIR_INDEX(index) (index << 2)
 
 #define MM_TTBR_CNP (0x1)
+
+void mmu_init(void);
 
 #endif /* _MMU_H */
