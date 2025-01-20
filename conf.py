@@ -19,7 +19,7 @@ class NinjaGen():
         self.ld = f'{self.toolchain}ld'
         self.objcopy = f'{self.toolchain}objcopy'
         self.cflags = '-ffreestanding -Wall -Wextra -Isrc -g -DAARCH64'
-        self.ldflags = '-T linker.ld -g'
+        self.ldflags = '-T linker8.ld -g'
 
     def _add_rules(self):
         self.build_ninja_content = dedent(f"""
