@@ -4,6 +4,7 @@
 
 #include "mem/mem.h"
 #include "mem/mmu.h"
+#include "mmio/mmio.h"
 #include "peripherals/bcm2711/cpu.h"
 
 /* raspi4b address map
@@ -11,7 +12,6 @@
  * Peripherals 0x0_FC00_0000 - 0x1_0000_0000
  * PCIe 0x6_0000_0000 - 0x7_FFFF_FFFF
  */
-
 
 /* use granule of 4KB.
  * use table indexes from 0 to 3.
@@ -49,55 +49,71 @@
  * from linux/Documentation/arch/arm64/memory.rst
  */
 
-uint64_t l0_table[TABLE_SIZE] __attribute__((aligned(4096)));
-uint64_t l1_table[TABLE_SIZE] __attribute__((aligned(4096)));
-uint64_t l2_table[TABLE_SIZE] __attribute__((aligned(4096)));
-uint64_t l3_table[TABLE_SIZE] __attribute__((aligned(4096)));
+#ifdef __aarch64__
+#define BCM_VERSION 2711
+// Each entry is a gig.
+uint64_t level_1_table[512] __attribute__((aligned(4096)));
 
-static void paging_init(void)
-{
-    l0_table[0] = (uint64_t)l1_table
-        | MM_DESCRIPTOR_TABLE
-        | MM_DESCRIPTOR_VALID;
+// First gig is stack, code, rodata then data, bss, ram and then GPU.
+uint64_t level_2_0x0_0000_0000_to_0x0_4000_0000[512] __attribute__((aligned(4096)));
 
-    l1_table[0] = (uint64_t)l2_table
-        | MM_DESCRIPTOR_TABLE
-        | MM_DESCRIPTOR_VALID;
+#if BCM_VERSION == 2711
+// Third gig has peripherals
+uint64_t level_2_0x0_c000_0000_to_0x1_0000_0000[512] __attribute__((aligned(4096)));
+#endif
+#else
+// Each entry is a megabyte
+uint32_t level_1_table[1024] __attribute__((aligned(4096)));
+#endif
 
-    l2_table[0] = (uint64_t)l3_table
-        | MM_DESCRIPTOR_TABLE
-        | MM_DESCRIPTOR_VALID;
-
-    /* map sdram */
-    for (uint64_t i = 0; i < 0x40000; i++)
-    {
-        uint64_t paddr = i * PAGE_SIZE;
-        l3_table[i] = paddr
-            | MMU_FLAGS
-            | MM_DESCRIPTOR_VALID;
+STRICT_ALIGN void setup_mmu_flat_map(void) {
+    // Each entry is 2MB or 0x20_0000
+    // First two MB
+    level_2_0x0_0000_0000_to_0x0_4000_0000[0] = 0x0000000000000000 |
+                                                MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) |
+                                                MM_DESCRIPTOR_INNER_SHAREABLE |
+                                                MM_DESCRIPTOR_ACCESS_FLAG |
+                                                MM_DESCRIPTOR_BLOCK |
+                                                MM_DESCRIPTOR_VALID;
+    for (uint64_t i = 1; i < 512 - 8; i++) {
+        level_2_0x0_0000_0000_to_0x0_4000_0000[i] = (0x0000000000000000 + (i << 21)) |
+                                                    MM_DESCRIPTOR_EXECUTE_NEVER |
+                                                    MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) |
+                                                    MM_DESCRIPTOR_INNER_SHAREABLE |
+                                                    MM_DESCRIPTOR_ACCESS_FLAG |
+                                                    MM_DESCRIPTOR_BLOCK |
+                                                    MM_DESCRIPTOR_VALID;
     }
-
-    /* map peripherals */
-    for (uint64_t i = 0xFC00; i < 0x10000; i++)
-    {
-        uint64_t paddr = i * PAGE_SIZE;
-        l3_table[i] = paddr
-            | MMU_DEVICE_FLAGS
-            | MM_DESCRIPTOR_VALID;
+    // Last 16 MB are shared with the GPU.
+    for (uint64_t i = 512 - 8; i < 512; i++) {
+        level_2_0x0_0000_0000_to_0x0_4000_0000[i] = (0x0000000000000000 + (i << 21)) |
+                                                    MM_DESCRIPTOR_EXECUTE_NEVER |
+                                                    MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) |
+                                                    MM_DESCRIPTOR_INNER_SHAREABLE |
+                                                    MM_DESCRIPTOR_ACCESS_FLAG |
+                                                    MM_DESCRIPTOR_BLOCK |
+                                                    MM_DESCRIPTOR_VALID;
     }
-}
+    level_1_table[0] = ((uint64_t) level_2_0x0_0000_0000_to_0x0_4000_0000) |
+                       MM_DESCRIPTOR_TABLE |
+                       MM_DESCRIPTOR_VALID;
 
-static void enable_mmu(void)
-{
-    /* configure the sysregs to use mmu */
+    // Set peripherals to register access.
+    for (uint64_t i = 480; i < 512; i++) {
+        level_2_0x0_c000_0000_to_0x1_0000_0000[i] = (0x00000000c0000000 + (i << 21)) |
+                                                    MM_DESCRIPTOR_EXECUTE_NEVER |
+                                                    MM_DESCRIPTOR_MAIR_INDEX(MT_DEVICE_nGnRnE) |
+                                                    MM_DESCRIPTOR_ACCESS_FLAG |
+                                                    MM_DESCRIPTOR_BLOCK |
+                                                    MM_DESCRIPTOR_VALID;
+    }
+    level_1_table[3] = ((uint64_t) level_2_0x0_c000_0000_to_0x1_0000_0000) |
+                       MM_DESCRIPTOR_TABLE |
+                       MM_DESCRIPTOR_VALID;
+
     uint64_t mair = MAIR_VALUE;
     uint64_t tcr = TCR_VALUE;
-
-    /* user */
-    uint64_t ttbr0 = ((uint64_t)l0_table) | MM_TTBR_CNP;
-    /* kernel */
-    uint64_t ttbr1 = ((uint64_t)l0_table) | MM_TTBR_CNP;
-
+    uint64_t ttbr0 = ((uint64_t) level_1_table) | MM_TTBR_CNP;
     uint64_t sctlr = 0;
     asm volatile (
         // The ISB forces these changes to be seen before any other registers are changed
@@ -108,8 +124,6 @@ static void enable_mmu(void)
         "MSR MAIR_EL1, %[mair]\n\t"
         // Set TTBR0
         "MSR TTBR0_EL1, %[ttbr0]\n\t"
-        // Set TTBR1
-        "MSR TTBR1_EL1, %[ttbr1]\n\t"
         // Set TCR
         "MSR TCR_EL1, %[tcr]\n\t"
         // The ISB forces these changes to be seen before the MMU is enabled.
@@ -127,16 +141,6 @@ static void enable_mmu(void)
         : [mair] "r" (mair),
           [tcr] "r" (tcr),
           [ttbr0] "r" (ttbr0),
-          [ttbr1] "r" (ttbr1),
           [sctlr] "r" (sctlr)
     );
-}
-
-STRICT_ALIGN void mmu_init(void)
-{
-    /* init 4 levels of pages. */
-    paging_init();
-
-    /* enable mmu */
-    enable_mmu();
 }
