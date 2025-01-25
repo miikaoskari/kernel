@@ -32,7 +32,7 @@
 	stp	x24, x25, [sp, #16 * 12]
 	stp	x26, x27, [sp, #16 * 13]
 	stp	x28, x29, [sp, #16 * 14]
-	str	x30, [sp, #16 * 15] 
+	str	x30, [sp, #16 * 15]
 	.endm
 
 	.macro	kernel_exit
@@ -51,8 +51,8 @@
 	ldp	x24, x25, [sp, #16 * 12]
 	ldp	x26, x27, [sp, #16 * 13]
 	ldp	x28, x29, [sp, #16 * 14]
-	ldr	x30, [sp, #16 * 15] 
-	add	sp, sp, #S_FRAME_SIZE		
+	ldr	x30, [sp, #16 * 15]
+	add	sp, sp, #S_FRAME_SIZE
 	eret
 	.endm
 
@@ -61,17 +61,17 @@
  * Exception vectors.
  */
 .align	11
-.globl vectors 
+.globl vectors
 vectors:
 	ventry	sync_invalid_el1t			// Synchronous EL1t
 	ventry	irq_invalid_el1t			// IRQ EL1t
 	ventry	fiq_invalid_el1t			// FIQ EL1t
 	ventry	error_invalid_el1t			// Error EL1t
 
-	ventry	sync_invalid_el1h			// Synchronous EL1h
-	ventry	el1_irq					// IRQ EL1h
-	ventry	fiq_invalid_el1h			// FIQ EL1h
-	ventry	error_invalid_el1h			// Error EL1h
+	ventry	sync_invalid_el1h // Synchronous EL1h
+	ventry	el1_irq	// IRQ EL1h
+	ventry	el1_fiq	// FIQ EL1h
+	ventry  el1_err	// Error EL1h
 
 	ventry	sync_invalid_el0_64			// Synchronous 64-bit EL0
 	ventry	irq_invalid_el0_64			// IRQ 64-bit EL0
@@ -129,9 +129,19 @@ error_invalid_el0_32:
 	handle_invalid_entry  ERROR_INVALID_EL0_32
 
 el1_irq:
-	kernel_entry 
+	kernel_entry
 	bl	handle_irq
-	kernel_exit 
+	kernel_exit
+
+el1_fiq:
+    kernel_entry
+    bl handle_fiq
+    kernel_exit
+
+el1_err:
+    kernel_entry
+    bl handle_err
+    kernel_exit
 
 .globl ret_from_fork
 ret_from_fork:
