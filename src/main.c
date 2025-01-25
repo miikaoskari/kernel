@@ -36,7 +36,7 @@ void kmain(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
 #endif
 {
-  mmu_init();
+  setup_mmu_flat_map();
 
   uart_init(RP4);
   set_putc((putc_func_t)uart_putc);
