@@ -66,3 +66,27 @@ void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
     schedule();
   }
 }
+
+/*
+ * Spin CPU CORE 1
+ */
+void spin_cpu1(void)
+{
+    while (1);
+}
+
+/*
+ * Spin CPU CORE 2
+ */
+void spin_cpu2(void)
+{
+    while (1);
+}
+
+/*
+ * Spin CPU CORE 3
+ */
+void spin_cpu3(void)
+{
+    while (1);
+}

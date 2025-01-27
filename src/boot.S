@@ -14,6 +14,16 @@ _start:
     mrs    x0, mpidr_el1
     and    x0, x0,#0xFF // Check processor id
     cbz    x0, master   // Hang for all non-primary CPU
+
+    // branch to spin function based on core
+    cmp    x0, #1
+    bl     spin_cpu1
+    cmp    x0, #2
+    bl     spin_cpu2
+    cmp    x0, #3
+    bl     spin_cpu3
+
+    // halt if id not 0, 1, 2 or 3
     b    halt
 
 master:
@@ -91,4 +101,3 @@ el1_entry:
 halt:
     wfe
     b halt
-
