@@ -17,11 +17,11 @@ _start:
 
     // branch to spin function based on core
     cmp    x0, #1
-    bl     spin_cpu1
+    b.eq   spin_cpu1
     cmp    x0, #2
-    bl     spin_cpu2
+    b.eq   spin_cpu2
     cmp    x0, #3
-    bl     spin_cpu3
+    b.eq   spin_cpu3
 
     // halt if id not 0, 1, 2 or 3
     b    halt
