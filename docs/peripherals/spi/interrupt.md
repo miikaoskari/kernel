@@ -1,6 +1,6 @@
 # BCM2711 SPI
 
-## 9.6.2. Interrupt
+## Interrupt
  1. Set INTR and INTD. These can be left set over multiple operations.
  2. Set CS, CPOL, CPHA as required and set TA = 1. This will immediately trigger a first interrupt with DONE = 1.
  3. On interrupt:
