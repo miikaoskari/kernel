@@ -1,4 +1,5 @@
 build/
+doxygen/
 *.elf
 *.img
 build.ninja
