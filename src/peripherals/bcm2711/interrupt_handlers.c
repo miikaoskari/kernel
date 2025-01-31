@@ -12,6 +12,7 @@
 
 #include "bcm2711_lpa.h"
 #include "cpu.h"
+#include "timer/timer.h"
 
 #define BCM_VERSION 2711
 
@@ -256,7 +257,7 @@ __attribute__((weak)) void SWI7_IRQHandler(void)
 // 96: Timer 0
 __attribute__((weak)) void TIMER_0_IRQHandler(void)
 {
-    while (true) { }
+    handle_timer_irq();
 }
 
 // 97: Timer 1
