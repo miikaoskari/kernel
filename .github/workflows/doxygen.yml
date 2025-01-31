@@ -1,0 +1,24 @@
+name: Generate Doxygen
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Doxygen
+      run: sudo apt-get install doxygen graphviz -y
+
+    - name: Generate Doxygen documentation
+      run: doxygen Doxyfile
+
+    - name: Upload Doxygen documentation
+      uses: actions/upload-artifact@v2
+      with:
+        name: doxygen-docs
+        path: docs/doxygen/html
