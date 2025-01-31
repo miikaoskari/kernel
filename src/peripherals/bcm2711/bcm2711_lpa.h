@@ -33,7 +33,7 @@
 /** @addtogroup bcm2711_lpa
   * @{
   */
-
+#include <stdint.h>
 
 #ifndef BCM2711_LPA_H
 #define BCM2711_LPA_H
