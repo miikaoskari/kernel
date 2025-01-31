@@ -39,55 +39,31 @@ uint32_t level_1_table[1024] __attribute__((aligned(4096)));
  *
  * @note This function assumes strict alignment requirements.
  */
-STRICT_ALIGN void setup_mmu_flat_map(void) {
+STRICT_ALIGN void setup_mmu_flat_map(void)
+{
     // Each entry is 2MB or 0x20_0000
     // First two MB
-    level_2_0x0_0000_0000_to_0x0_4000_0000[0] = 0x0000000000000000 |
-                                                MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) |
-                                                MM_DESCRIPTOR_INNER_SHAREABLE |
-                                                MM_DESCRIPTOR_ACCESS_FLAG |
-                                                MM_DESCRIPTOR_BLOCK |
-                                                MM_DESCRIPTOR_VALID;
+    level_2_0x0_0000_0000_to_0x0_4000_0000[0] = 0x0000000000000000 | MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) | MM_DESCRIPTOR_INNER_SHAREABLE | MM_DESCRIPTOR_ACCESS_FLAG | MM_DESCRIPTOR_BLOCK | MM_DESCRIPTOR_VALID;
     for (uint64_t i = 1; i < 512 - 8; i++) {
-        level_2_0x0_0000_0000_to_0x0_4000_0000[i] = (0x0000000000000000 + (i << 21)) |
-                                                    MM_DESCRIPTOR_EXECUTE_NEVER |
-                                                    MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) |
-                                                    MM_DESCRIPTOR_INNER_SHAREABLE |
-                                                    MM_DESCRIPTOR_ACCESS_FLAG |
-                                                    MM_DESCRIPTOR_BLOCK |
-                                                    MM_DESCRIPTOR_VALID;
+        level_2_0x0_0000_0000_to_0x0_4000_0000[i] = (0x0000000000000000 + (i << 21)) | MM_DESCRIPTOR_EXECUTE_NEVER | MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) | MM_DESCRIPTOR_INNER_SHAREABLE | MM_DESCRIPTOR_ACCESS_FLAG | MM_DESCRIPTOR_BLOCK | MM_DESCRIPTOR_VALID;
     }
     // Last 16 MB are shared with the GPU.
     for (uint64_t i = 512 - 8; i < 512; i++) {
-        level_2_0x0_0000_0000_to_0x0_4000_0000[i] = (0x0000000000000000 + (i << 21)) |
-                                                    MM_DESCRIPTOR_EXECUTE_NEVER |
-                                                    MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) |
-                                                    MM_DESCRIPTOR_INNER_SHAREABLE | MM_DESCRIPTOR_ACCESS_FLAG |
-                                                    MM_DESCRIPTOR_BLOCK |
-                                                    MM_DESCRIPTOR_VALID;
+        level_2_0x0_0000_0000_to_0x0_4000_0000[i] = (0x0000000000000000 + (i << 21)) | MM_DESCRIPTOR_EXECUTE_NEVER | MM_DESCRIPTOR_MAIR_INDEX(MT_READONLY) | MM_DESCRIPTOR_INNER_SHAREABLE | MM_DESCRIPTOR_ACCESS_FLAG | MM_DESCRIPTOR_BLOCK | MM_DESCRIPTOR_VALID;
     }
-    level_1_table[0] = ((uint64_t) level_2_0x0_0000_0000_to_0x0_4000_0000) |
-                       MM_DESCRIPTOR_TABLE |
-                       MM_DESCRIPTOR_VALID;
+    level_1_table[0] = ((uint64_t)level_2_0x0_0000_0000_to_0x0_4000_0000) | MM_DESCRIPTOR_TABLE | MM_DESCRIPTOR_VALID;
 
     // Set peripherals to register access.
     for (uint64_t i = 480; i < 512; i++) {
-        level_2_0x0_c000_0000_to_0x1_0000_0000[i] = (0x00000000c0000000 + (i << 21)) |
-                                                    MM_DESCRIPTOR_EXECUTE_NEVER |
-                                                    MM_DESCRIPTOR_MAIR_INDEX(MT_DEVICE_nGnRnE) |
-                                                    MM_DESCRIPTOR_ACCESS_FLAG |
-                                                    MM_DESCRIPTOR_BLOCK |
-                                                    MM_DESCRIPTOR_VALID;
+        level_2_0x0_c000_0000_to_0x1_0000_0000[i] = (0x00000000c0000000 + (i << 21)) | MM_DESCRIPTOR_EXECUTE_NEVER | MM_DESCRIPTOR_MAIR_INDEX(MT_DEVICE_nGnRnE) | MM_DESCRIPTOR_ACCESS_FLAG | MM_DESCRIPTOR_BLOCK | MM_DESCRIPTOR_VALID;
     }
-    level_1_table[3] = ((uint64_t) level_2_0x0_c000_0000_to_0x1_0000_0000) |
-                       MM_DESCRIPTOR_TABLE |
-                       MM_DESCRIPTOR_VALID;
+    level_1_table[3] = ((uint64_t)level_2_0x0_c000_0000_to_0x1_0000_0000) | MM_DESCRIPTOR_TABLE | MM_DESCRIPTOR_VALID;
 
     uint64_t mair = MAIR_VALUE;
     uint64_t tcr = TCR_VALUE;
-    uint64_t ttbr0 = ((uint64_t) level_1_table) | MM_TTBR_CNP;
+    uint64_t ttbr0 = ((uint64_t)level_1_table) | MM_TTBR_CNP;
     uint64_t sctlr = 0;
-    asm volatile (
+    asm volatile(
         // The ISB forces these changes to be seen before any other registers are changed
         "ISB\n\t"
         // Clear the TLB
@@ -110,9 +86,8 @@ STRICT_ALIGN void setup_mmu_flat_map(void) {
         // The ISB forces these changes to be seen by the next instruction
         "ISB\n\t"
         : /* No outputs. */
-        : [mair] "r" (mair),
-          [tcr] "r" (tcr),
-          [ttbr0] "r" (ttbr0),
-          [sctlr] "r" (sctlr)
-    );
+        : [mair] "r"(mair),
+        [tcr] "r"(tcr),
+        [ttbr0] "r"(ttbr0),
+        [sctlr] "r"(sctlr));
 }

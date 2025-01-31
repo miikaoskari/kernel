@@ -5,12 +5,12 @@
  * This file contains the implementation of the I2C peripheral driver
  * for the BCM2711 chip. It provides functions to initialize and
  * communicate with I2C devices.
- * 
+ *
  * The Broadcom Serial Control (BSC) controller is a master, fast-mode (400Kb/s) BSC controller. The Broadcom Serial
  * Control bus is a proprietary bus compliant with the Philips® I2C bus/interface version 2.1 January 2000.
  */
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "peripherals/bcm2711/bcm2711_lpa.h"
 
@@ -58,14 +58,13 @@ void i2c_enable_interrupts(void)
  * @param slave_addr The address of the I2C slave device.
  * @param len The length of the data buffer.
  */
-void i2c_write(uint8_t *data, uint8_t slave_addr, uint16_t len)
+void i2c_write(uint8_t* data, uint8_t slave_addr, uint16_t len)
 {
     bsc0.DLEN = len;
     bsc0.A = slave_addr;
 
     /* write data to fifo */
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
         bsc0.FIFO = data[i];
     }
 
@@ -73,7 +72,7 @@ void i2c_write(uint8_t *data, uint8_t slave_addr, uint16_t len)
     bsc0.C_b.ST = true;
 
     /* wait for transfer to complete */
-    while (!bsc0.S_b.DONE) {}
+    while (!bsc0.S_b.DONE) { }
 
     /* clear status */
     bsc0.S_b.DONE = true;
@@ -91,20 +90,19 @@ void i2c_write(uint8_t *data, uint8_t slave_addr, uint16_t len)
  * @param slave_addr The address of the I2C slave device to read from.
  * @param len The number of bytes to read from the I2C slave device.
  */
-void i2c_read(uint8_t *data, uint8_t slave_addr, uint16_t len)
+void i2c_read(uint8_t* data, uint8_t slave_addr, uint16_t len)
 {
     bsc0.DLEN = len;
     bsc0.A = slave_addr;
     bsc0.C_b.ST = true;
 
     /* read data from fifo */
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
         data[i] = bsc0.FIFO;
     }
 
     /* wait for transfer to complete */
-    while (!bsc0.S_b.DONE) {}
+    while (!bsc0.S_b.DONE) { }
 
     /* clear status */
     bsc0.S_b.DONE = true;

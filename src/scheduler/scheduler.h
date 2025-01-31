@@ -23,7 +23,7 @@
 
 /**
  * @brief cpu context structure
- * only save x19-x28, fp, sp, pc because x0-x18 can be 
+ * only save x19-x28, fp, sp, pc because x0-x18 can be
  * overwritten by the called function
  */
 struct cpu_context {
@@ -54,17 +54,17 @@ void preempt_disable();
 void preempt_enable();
 void schedule();
 void timer_tick();
-void switch_to(struct task_struct *next);
+void switch_to(struct task_struct* next);
 #ifndef __ASSEMBLER__
 void schedule_tail();
 #endif
 
-extern struct task_struct *current;
-extern struct task_struct *task[TASK_COUNT];
+extern struct task_struct* current;
+extern struct task_struct* task[TASK_COUNT];
 extern int task_count;
 
 /* asm */
-extern void cpu_switch_to(struct task_struct *prev, struct task_struct *next);
+extern void cpu_switch_to(struct task_struct* prev, struct task_struct* next);
 
 #endif
 #endif

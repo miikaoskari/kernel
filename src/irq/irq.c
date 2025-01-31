@@ -99,8 +99,7 @@ void handle_irq(void)
         printk("irq pending! id: %x\r\n", interrupt_id);
 
         /* check if interrupt is in range */
-        if (interrupt_id >= INTERRUPT_COUNT)
-        {
+        if (interrupt_id >= INTERRUPT_COUNT) {
             break;
         }
 
@@ -108,12 +107,11 @@ void handle_irq(void)
         enable_irqs();
 
         /* get matching handler for id */
-        void(*handler)(void) = interrupt_handlers[interrupt_id];
+        void (*handler)(void) = interrupt_handlers[interrupt_id];
 
-        if (handler == NULL)
-        {
+        if (handler == NULL) {
             /* unhandled interrupt */
-            while(1) {}
+            while (1) { }
         }
 
         COMPLETE_MEMORY_READS;
@@ -126,7 +124,6 @@ void handle_irq(void)
         GIC_CPU->GICC_EOIR = current_interrupt;
     }
     COMPLETE_MEMORY_READS;
-    //enable_irqs();
 
     return;
 }

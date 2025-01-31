@@ -1,7 +1,7 @@
 #include "scheduler/fork.h"
-#include "scheduler/scheduler.h"
-#include "mem/mem.h"
 #include "entry.h"
+#include "mem/mem.h"
+#include "scheduler/scheduler.h"
 
 /**
  * @brief Create a new process
@@ -15,11 +15,10 @@ int copy_process(unsigned long fn, unsigned long arg)
 {
     preempt_disable();
 
-    struct task_struct *p;
+    struct task_struct* p;
 
-    p = (struct task_struct *) get_free_page();
-    if (!p)
-    {
+    p = (struct task_struct*)get_free_page();
+    if (!p) {
         return 1;
     }
 
@@ -38,4 +37,3 @@ int copy_process(unsigned long fn, unsigned long arg)
     preempt_enable();
     return 0;
 }
-
