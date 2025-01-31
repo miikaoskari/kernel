@@ -126,7 +126,7 @@ void handle_irq(void)
         GIC_CPU->GICC_EOIR = current_interrupt;
     }
     COMPLETE_MEMORY_READS;
-    enable_irqs();
+    //enable_irqs();
 
     return;
 }

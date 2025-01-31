@@ -1,9 +1,14 @@
+/**
+ * @file mmio.c
+ * @brief Memory-Mapped I/O (MMIO) implementation.
+ *
+ * This file contains the implementation for memory-mapped I/O operations.
+ * It includes necessary headers and defines functions to interact with
+ * hardware registers via MMIO.
+ */
 #include <stddef.h>
 #include <stdint.h>
 
-/**
- * @brief Base address for MMIO
- */
 static uint32_t MMIO_BASE;
 
 /**

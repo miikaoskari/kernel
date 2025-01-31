@@ -1,3 +1,10 @@
+/**
+ * @file main.c
+ * @brief Main source file for the kernel.
+ *
+ * This file contains the main entry point and initialization code for the kernel.
+ * It includes the necessary standard library headers.
+ */
 #include <stddef.h>
 #include <stdint.h>
 
@@ -18,6 +25,11 @@ extern "C" /* Use C linkage for kernel_main. */
 
 extern int get_el(void);
 
+/**
+ * @brief Test process for the kernel.
+ *
+ * @param array A pointer to the character array to be processed.
+ */
 void process1(char *array)
 {
   printk("Process %s started\n", array);
@@ -28,6 +40,20 @@ void process1(char *array)
   }
 }
 
+/**
+ * @brief Kernel main entry point for different architectures.
+ *
+ * This function serves as the entry point for the kernel, with different
+ * arguments depending on the architecture (AArch64 or AArch32).
+ *
+ * @param dtb_ptr32 Device Tree Blob pointer (AArch64 only).
+ * @param x1 General purpose register 1 (AArch64 only).
+ * @param x2 General purpose register 2 (AArch64 only).
+ * @param x3 General purpose register 3 (AArch64 only).
+ * @param r0 General purpose register 0 (AArch32 only).
+ * @param r1 General purpose register 1 (AArch32 only).
+ * @param atags Address of the tagged list (AArch32 only).
+ */
 #ifdef AARCH64
 // arguments for AArch64
 void kmain(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
@@ -67,24 +93,30 @@ void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
   }
 }
 
-/*
- * Spin CPU CORE 1
+/**
+ * @brief Function to spin the CPU1.
+ *
+ * This function is responsible for spinning the CPU1.
  */
 void spin_cpu1(void)
 {
     while (1);
 }
 
-/*
- * Spin CPU CORE 2
+/**
+ * @brief Function to spin the CPU2.
+ *
+ * This function is responsible for spinning the CPU2.
  */
 void spin_cpu2(void)
 {
     while (1);
 }
 
-/*
- * Spin CPU CORE 3
+/**
+ * @brief Function to spin the CPU3.
+ *
+ * This function is responsible for spinning the CPU3.
  */
 void spin_cpu3(void)
 {

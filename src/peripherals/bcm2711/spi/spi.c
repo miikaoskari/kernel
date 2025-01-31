@@ -1,23 +1,25 @@
+/**
+ * @file spi.c
+ * @brief SPI driver implementation for BCM2711 peripherals.
+ *
+ * This file contains the implementation of the SPI driver for the BCM2711
+ * peripherals. It provides functions to initialize and communicate with SPI
+ * devices.
+ */
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "peripherals/bcm2711/bcm2711_lpa.h"
 #include "peripherals/bcm2711/spi/spi.h"
 
-
-/* 9.6.2. Interrupt
- * 1. Set INTR and INTD. These can be left set over multiple operations.
- * 2. Set CS, CPOL, CPHA as required and set TA = 1. This will immediately trigger a first interrupt with DONE = 1.
- * 3. On interrupt:
- * - If DONE is set and data to write (this means it is the first interrupt), write up to 64 bytes to SPI_FIFO. If DONE is
- * set and no more data, set TA = 0. Read trailing data from SPI_FIFO until RXD is 0.
- * - If RXR is set read 48 bytes data from SPI_FIFO and if more data to write, write up to 48 bytes to SPI_FIFO.
- */
-
 static SPI0_Type spi0;
 
-/*
- * Initialize SPI0 peripheral as interrupt driven
+/**
+ * @brief Initializes the SPI peripheral on the BCM2711.
+ *
+ * This function sets up the SPI peripheral for communication by configuring
+ * the necessary registers and settings. It should be called before any SPI
+ * communication is attempted.
  */
 void spi_init(void)
 {
@@ -27,11 +29,25 @@ void spi_init(void)
     spi0.CS_b.CPHA = 0;
 }
 
+/**
+ * @brief Enables SPI interrupts.
+ *
+ * This function configures and enables the SPI interrupts for the BCM2711 peripheral. 
+ * It ensures that the SPI module is ready to handle interrupt-driven communication.
+ */
 void spi_enable_interrupts(void) {
     spi0.CS_b.INTR = true;
     spi0.CS_b.INTD = true;
 }
 
+/**
+ * @brief Writes data to the SPI bus.
+ *
+ * This function sends a specified number of bytes over the SPI bus.
+ *
+ * @param data Pointer to the data buffer to be sent.
+ * @param len Length of the data buffer in bytes.
+ */
 void spi_write(uint8_t *data, uint16_t len) {
     for (int i = 0; i < len; i++) {
         /* wait until tx fifo has space */
@@ -50,6 +66,15 @@ void spi_write(uint8_t *data, uint16_t len) {
     spi0.CS_b.TA = false;
 }
 
+/**
+ * @brief Reads data from the SPI peripheral.
+ *
+ * This function reads a specified number of bytes from the SPI peripheral
+ * into the provided data buffer.
+ *
+ * @param data Pointer to the buffer where the read data will be stored.
+ * @param len The number of bytes to read from the SPI peripheral.
+ */
 void spi_read(uint8_t *data, uint16_t len) {
     for (int i = 0; i < len; i++) {
         /* set transfer active */

@@ -1,3 +1,11 @@
+/**
+ * @file interrupt_handlers.c
+ * @brief Interrupt handlers for BCM2711 peripherals.
+ * 
+ * This file contains the implementation of interrupt handlers for the BCM2711
+ * peripherals. It includes necessary includes and definitions to handle
+ * interrupts in the system.
+ */
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -856,6 +864,6 @@ void* interrupt_handlers[160] = {
   RNG_IRQHandler, // 157
   EMMC_IRQHandler, // 158
   ETH_PCIE_SECURE_IRQHandler, // 159
-  
+
 };
 #endif

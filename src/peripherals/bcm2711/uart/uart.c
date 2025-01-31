@@ -1,3 +1,13 @@
+/**
+ * @file uart.c
+ * @brief UART driver implementation for BCM2711.
+ *
+ * This file contains the implementation of the UART driver for the BCM2711
+ * peripheral. It provides the necessary functions to initialize and
+ * communicate using the UART interface.
+ * 
+ * @note From https://wiki.osdev.org/Raspberry_Pi_Bare_Bones
+ */
 #include <stddef.h>
 #include <stdint.h>
 
@@ -50,6 +60,15 @@ enum {
 volatile unsigned int __attribute__((aligned(16))) mbox[9] = {
     9 * 4, 0, 0x38002, 12, 8, 2, 3000000, 0, 0};
 
+/**
+ * @brief Initializes the UART peripheral for the specified Raspberry Pi model.
+ *
+ * This function sets up the UART peripheral for communication based on the
+ * Raspberry Pi model specified by the parameter.
+ *
+ * @param raspi An integer representing the Raspberry Pi model.
+ *              For example, 3 for Raspberry Pi 3, 4 for Raspberry Pi 4, etc.
+ */
 void uart_init(int raspi) {
   mmio_init(raspi);
 
@@ -106,6 +125,13 @@ void uart_init(int raspi) {
   mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
 }
 
+/**
+ * @brief Sends a character via UART.
+ *
+ * This function transmits a single character over the UART interface.
+ *
+ * @param c The character to be sent.
+ */
 void uart_putc(unsigned char c) {
   // Wait for UART to become ready to transmit.
   while (mmio_read(UART0_FR) & (1 << 5)) {
@@ -113,6 +139,13 @@ void uart_putc(unsigned char c) {
   mmio_write(UART0_DR, c);
 }
 
+/**
+ * @brief Receives a character from the UART.
+ *
+ * This function waits for a character to be received from the UART and returns it.
+ *
+ * @return The received character.
+ */
 unsigned char uart_getc() {
   // Wait for UART to have received something.
   while (mmio_read(UART0_FR) & (1 << 4)) {
@@ -120,6 +153,14 @@ unsigned char uart_getc() {
   return mmio_read(UART0_DR);
 }
 
+/**
+ * @brief Sends a null-terminated string via UART.
+ *
+ * This function transmits each character in the provided string
+ * until the null terminator is encountered.
+ *
+ * @param str The null-terminated string to be sent.
+ */
 void uart_puts(const char *str) {
   for (size_t i = 0; str[i] != '\0'; i++)
   {

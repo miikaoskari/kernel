@@ -1,3 +1,10 @@
+/**
+ * @file scheduler.c
+ * @brief Implementation of the scheduler module.
+ *
+ * This file contains the implementation of the scheduler functions
+ * which are responsible for managing task scheduling in the kernel.
+ */
 #include "scheduler/scheduler.h"
 #include "irq/irq.h"
 
@@ -14,8 +21,10 @@ int task_count = 1;
 
 
 /**
- * @brief disable preemption for the current task
+ * @brief Disables preemption.
  *
+ * This function disables the preemption mechanism, preventing the current
+ * task from being preempted by other tasks.
  */
 void preempt_disable()
 {
@@ -23,8 +32,10 @@ void preempt_disable()
 }
 
 /**
- * @brief enable preemption for the current task
+ * @brief Enables preemption by the scheduler.
  *
+ * This function re-enables preemption, allowing the scheduler to
+ * interrupt the current task and switch to another task if necessary.
  */
 void preempt_enable()
 {
@@ -32,8 +43,12 @@ void preempt_enable()
 }
 
 /**
- * @brief schedule the next task to run
+ * @brief Internal function to handle the scheduling of tasks.
  *
+ * This function is responsible for managing the scheduling of tasks within the kernel.
+ * It is called internally by the scheduler to determine which task should be executed next.
+ *
+ * @note This function should not be called directly. It is intended for internal use by the scheduler.
  */
 void _schedule()
 {
@@ -75,8 +90,11 @@ void _schedule()
 }
 
 /**
- * @brief schedule the next task to run
+ * @brief Selects the next process to run and performs a context switch.
  *
+ * This function is responsible for determining the next process to run based on the
+ * scheduling algorithm implemented. It performs the necessary context switch to
+ * transfer control to the selected process.
  */
 void schedule()
 {
@@ -84,15 +102,29 @@ void schedule()
     _schedule();
 }
 
+/**
+ * @brief Finalizes the scheduling process for the current task.
+ *
+ * This function is called at the end of the scheduling process to perform any
+ * necessary cleanup or finalization steps for the current task. It ensures
+ * that the task is properly set up to continue execution.
+ */
 void schedule_tail()
 {
     preempt_enable();
 }
 
+
 /**
- * @brief switch to the next task
- *
- * @param next the next task to switch to
+ * @brief Switches the CPU context to the next task.
+ * 
+ * This function is responsible for switching the CPU context from the
+ * currently running task to the next task specified by the @next parameter.
+ * It performs the necessary operations to save the state of the current task
+ * and restore the state of the next task, allowing the scheduler to manage
+ * task execution efficiently.
+ * 
+ * @param next The next task to switch to.
  */
 void switch_to(struct task_struct *next)
 {
@@ -107,10 +139,13 @@ void switch_to(struct task_struct *next)
 }
 
 /**
- * @brief timer tick handler
+ * @brief Handles the timer tick event.
  *
+ * This function is called on each timer tick to perform necessary
+ * scheduling operations. It is responsible for updating the system
+ * timer and managing task scheduling.
  */
-void timer_tick()
+void timer_tick(void)
 {
     current->counter--;
     if (current->counter > 0 || current->preempt_count > 0)
