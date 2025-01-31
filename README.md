@@ -1,36 +1,31 @@
-# kernel
+# mios kernel
 
-## building
+## Building
 
 generate the build.ninja file with
-```bash
-python conf.py
-```
+`python conf.py`
 
 then build with `ninja`
 
-## launch
+## Launch
 
-### inside qemu
-use `run.sh` to launch the kernel in qemu
+### Raspberry Pi 4b
+Setup the raspi4b with jtag connection.
 
-### with raspi4b
-setup the raspi4b with jtag connection.
+Install OpenOCD.
 
-install openocd.
+`$ sudo pacman -S openocd`
 
-`sudo pacman -S openocd`
+Launch OpenOCD with `$ openocd -f interface/jlink.cfg -f board/rpi4b.cfg`
 
-launch openocd with `openocd -f interface/jlink.cfg -f board/rpi4b.cfg`
+Connect with `$ aarch64-none-elf-gdb kernel8.elf`
 
-connect with `aarch64-none-elf-gdb kernel8.elf`
+Set the target to the bcm2711.cpu0 `(gdb) target extended-remote :3333`
 
-set the target to the bcm2711.cpu0 `(gdb) target extended-remote :3333`
+Load the kernel8.elf to the raspi4b `(gdb) load kernel8.elf`
 
-load the kernel8.elf to the raspi4b `(gdb) load kernel8.elf`
+Happy debugging!
 
-start debugging!
+## Info
 
-## info
-
-- raspi4b is in low peripheral mode by default!
+- Raspi4b is in low peripheral mode by default!
