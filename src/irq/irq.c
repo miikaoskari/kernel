@@ -1,3 +1,11 @@
+/**
+ * @file irq.c
+ * @brief IRQ (Interrupt Request) handling implementation.
+ *
+ * This file contains the implementation of IRQ handling functions.
+ * It includes necessary headers and defines functions to manage
+ * interrupt requests in the kernel.
+ */
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -31,7 +39,15 @@ const char* entry_error_messages[] = {
     "ERROR_INVALID_EL0_32",
 };
 
-/* get current cpu using mpidr register */
+/**
+ * @brief Get the current CPU identifier.
+ *
+ * This function retrieves the identifier of the CPU that is currently
+ * executing the code. It is typically used in a multi-core system to
+ * determine which CPU is handling the current task or interrupt.
+ *
+ * @return The identifier of the current CPU as an 8-bit unsigned integer.
+ */
 static uint8_t get_current_cpu(void)
 {
     uint32_t mpidr = 0;
@@ -41,7 +57,12 @@ static uint8_t get_current_cpu(void)
     return mpidr & 0xff;
 }
 
-/* enable cpu local irqs */
+/**
+ * @brief Enables the interrupt requests (IRQs).
+ *
+ * This function is responsible for enabling the interrupt requests
+ * in the system, allowing the processor to respond to hardware interrupts.
+ */
 void enable_irqs(void)
 {
     /* [0..0] Enable signaling of group 0 */
@@ -53,7 +74,12 @@ void enable_irqs(void)
     return;
 }
 
-/* disable irqs */
+/**
+ * @brief Disables all interrupts.
+ *
+ * This function disables all interrupt requests (IRQs) to prevent
+ * any interrupt from occurring.
+ */
 void disable_irqs(void)
 {
     /* disable IRQ with daifset */
@@ -62,7 +88,17 @@ void disable_irqs(void)
     return;
 }
 
-/* enable specific irq type */
+/**
+ * @brief Enable the specified IRQ.
+ *
+ * This function enables the interrupt request (IRQ) specified by the
+ * given IRQ number. Once enabled, the IRQ can trigger an interrupt
+ * service routine when the corresponding event occurs.
+ *
+ * @param irq The IRQ number to be enabled. This should be a value of
+ *            type IRQn_Type, which represents the specific interrupt
+ *            to be enabled.
+ */
 void enable_irq(IRQn_Type irq)
 {
     COMPLETE_MEMORY_READS;
@@ -74,17 +110,39 @@ void enable_irq(IRQn_Type irq)
     return;
 }
 
+/**
+ * @brief Enables the interrupt controller.
+ *
+ * This function is responsible for enabling the interrupt controller,
+ * allowing the system to handle hardware interrupts.
+ */
 void enable_interrupt_controller(void)
 {
     /* enable system timer irq */
     enable_irq(TIMER_0_IRQn);
 }
 
+/**
+ * @brief Display a message for an invalid entry
+ *
+ * This function is used to display a message when an invalid entry is detected.
+ * It provides information about the type of the invalid entry, the ESR value,
+ * and the address where the invalid entry occurred.
+ * @param type Type of the invalid entry
+ * @param esr Exception Syndrome Register value
+ * @param address Address where the invalid entry occurred
+ */
 void show_invalid_entry_message(int type, unsigned long esr, unsigned long address)
 {
     printk("%s, ESR: %x, address: %x\r\n", entry_error_messages[type], esr, address);
 }
 
+/**
+ * @brief Handles the interrupt request.
+ *
+ * This function is responsible for processing the interrupt request
+ * and performing the necessary actions to handle the interrupt.
+ */
 void handle_irq(void)
 {
     COMPLETE_MEMORY_READS;
