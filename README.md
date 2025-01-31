@@ -2,10 +2,10 @@
 
 ## Building
 
-generate the build.ninja file with
+Generate the build.ninja file with
 `python conf.py`
 
-then build with `ninja`
+Then build with `ninja`
 
 ## Launch
 
