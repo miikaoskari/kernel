@@ -18,11 +18,8 @@ jobs:
       with:
         submodules: true
 
-    - name: Create archive
-      run: zip -r source_code.zip .
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: source-code
-        path: source_code.zip
+        path: .
