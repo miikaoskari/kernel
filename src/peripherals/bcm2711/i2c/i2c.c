@@ -11,12 +11,8 @@ static BSC0_Type bsc0;
 
 void i2c_init(void)
 {
+    /* enable i2c */
     bsc0.C_b.I2CEN = true;
-
-    /* enable interrupt based I2C */
-    /*bsc0.C_b.INTR = true;
-     *bsc0.C_b.INTT = true;
-     */
 
     /* set clock divider, just use 150 MHz*/
     bsc0.DIV_b.CDIV = 150;
@@ -25,11 +21,17 @@ void i2c_init(void)
     bsc0.CLKT_b.TOUT = 0x3ff;
 }
 
+void i2c_enable_interrupts(void)
+{
+    /* enable interrupt based I2C */
+    bsc0.C_b.INTR = true;
+    bsc0.C_b.INTT = true;
+}
+
 void i2c_write(uint8_t *data, uint8_t slave_addr, uint16_t len)
 {
     bsc0.DLEN = len;
     bsc0.A = slave_addr;
-    bsc0.C_b.ST = true;
 
     /* write data to fifo */
     for (int i = 0; i < len; i++)
