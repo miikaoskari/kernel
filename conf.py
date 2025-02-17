@@ -63,8 +63,8 @@ class NinjaGen():
         self.cc = f'{self.toolchain}gcc'
         self.ld = f'{self.toolchain}ld'
         self.objcopy = f'{self.toolchain}objcopy'
-        self.cflags = '-ffreestanding -Wall -Wextra -Isrc -g -DAARCH64'
-        self.ldflags = '-T linker8.ld -g'
+        self.cflags = '-ffreestanding -Wall -Wextra -Isrc'
+        self.ldflags = '-T linker8.ld'
 
     def _add_rules(self):
         """
@@ -74,7 +74,7 @@ class NinjaGen():
         - `cc`: Compiles source files into object files using the specified compiler and flags.
         - `ld`: Links object files into an executable using the specified linker and flags.
         - `objcopy`: Converts object files into binary format using the specified objcopy tool.
-        - `generate_compile_commands`: Generates a compile_commands.json file for use with tools that support the 
+        - `generate_compile_commands`: Generates a compile_commands.json file for use with tools that support the
           Compilation Database format.
 
         The rules are formatted and stored in the `build_ninja_content` attribute.
@@ -101,8 +101,8 @@ class NinjaGen():
         """
         Recursively searches for .c and .S files in the specified source directories.
 
-        This method walks through each directory in self.source_dirs and appends the 
-        paths of files ending with .c to self.c_files and files ending with .S to 
+        This method walks through each directory in self.source_dirs and appends the
+        paths of files ending with .c to self.c_files and files ending with .S to
         self.s_files.
 
         Attributes:
@@ -176,7 +176,7 @@ class NinjaGen():
     def build(self):
         """
         Executes the build process by performing the following steps:
-        
+
         1. Finds the necessary files.
         2. Adds build rules.
         3. Adds build targets.
@@ -205,10 +205,20 @@ def main():
     parser.add_argument('--source-dirs', nargs='+', default=SOURCE_DIRS, help='List of source directories')
     parser.add_argument('--build-dir', default=BUILD_DIR, help='Build directory')
     parser.add_argument('--toolchain', default='aarch64-none-elf-', help='Toolchain')
+    parser.add_argument('--arch', default="aarch64", help='Architecture')
+    parser.add_argument('--debug', default=True, help='Debug flag')
     args = parser.parse_args()
+
+    SOURCE_DIRS.append(f'arch/{args.arch}')
 
     # generate ninja build file
     ng = NinjaGen(args.source_dirs, args.build_dir, args.toolchain)
+    ng.cflags += f' -Iarch/{args.arch}'
+
+    if args.debug:
+        ng.cflags += ' -g'
+        ng.ldflags += ' -g'
+
     ng.build()
 
 if __name__ == '__main__':
