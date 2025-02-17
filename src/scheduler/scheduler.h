@@ -26,6 +26,8 @@
  * only save x19-x28, fp, sp, pc because x0-x18 can be
  * overwritten by the called function
  */
+
+#ifdef __aarch64__
 struct cpu_context {
     unsigned long x19;
     unsigned long x20;
@@ -41,6 +43,7 @@ struct cpu_context {
     unsigned long sp; /* stack pointer */
     unsigned long pc; /* program counter */
 };
+#endif
 
 struct task_struct {
     struct cpu_context cpu_context;
