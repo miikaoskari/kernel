@@ -54,7 +54,7 @@ void process1(char* array)
  * @param r1 General purpose register 1 (AArch32 only).
  * @param atags Address of the tagged list (AArch32 only).
  */
-#ifdef AARCH64
+#ifdef __aarch64__
 // arguments for AArch64
 void kmain(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 #else
@@ -62,7 +62,7 @@ void kmain(uint64_t dtb_ptr32, uint64_t x1, uint64_t x2, uint64_t x3)
 void kmain(uint32_t r0, uint32_t r1, uint32_t atags)
 #endif
 {
-#ifdef AARCH64
+#ifdef __aarch64__
     setup_mmu_flat_map();
 #endif
     uart_init(RP4);
