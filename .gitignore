@@ -9,3 +9,6 @@ compile_commands.json
 .venv/
 .gdb_history
 .vscode/
+._DS_Store
+.DS_Store
+*.o
