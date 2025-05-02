@@ -12,3 +12,4 @@ compile_commands.json
 ._DS_Store
 .DS_Store
 *.o
+.xmake/
