@@ -1,5 +1,5 @@
 [submodule "src/utils/printk"]
-	path = src/utils/printk
+	path = external/printk
 	url = git@github.com:miikaoskari/printk.git
 [submodule "external/dtc"]
 	path = external/dtc
