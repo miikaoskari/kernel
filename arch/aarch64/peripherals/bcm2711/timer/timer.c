@@ -9,7 +9,7 @@
 #include "peripherals/bcm2711/timer/timer.h"
 #include "peripherals/bcm2711/bcm2711_lpa.h"
 #include "scheduler/scheduler.h"
-#include "utils/printk/printk.h"
+#include "printk.h"
 #include <stdint.h>
 
 const unsigned int interval = 200000;

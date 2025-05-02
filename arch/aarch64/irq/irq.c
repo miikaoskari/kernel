@@ -15,7 +15,7 @@
 #include "peripherals/bcm2711/core_ca72.h"
 #include "peripherals/bcm2711/cpu.h"
 #include "peripherals/bcm2711/interrupt_handlers.h"
-#include "utils/printk/printk.h"
+#include "printk.h"
 
 const char* entry_error_messages[] = {
     "SYNC_INVALID_EL1t",

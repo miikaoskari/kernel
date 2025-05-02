@@ -15,7 +15,7 @@
 #include "peripherals/bcm2711/uart/uart.h"
 #include "scheduler/fork.h"
 #include "scheduler/scheduler.h"
-#include "utils/printk/printk.h"
+#include "printk.h"
 
 #if defined(__cplusplus)
 extern "C" /* Use C linkage for kernel_main. */
