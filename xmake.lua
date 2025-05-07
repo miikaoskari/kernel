@@ -30,3 +30,12 @@ target("kernel8.elf")
 
     add_cflags("-ffreestanding", {force = true})
     add_cflags("-Wall", "-Wextra")
+
+target("u-boot")
+    set_kind("phony")
+    on_build(function (target)
+        if not os.isfile("external/u-boot/u-boot.bin") then
+            os.exec("make -j$(nproc) -C external/u-boot qemu_arm64_defconfig")
+            os.exec("make -j$(nproc) -C external/u-boot CROSS_COMPILE=aarch64-none-elf-")
+        end
+    end)
