@@ -45,3 +45,6 @@ target("u-boot")
             os.exec("make -j$(nproc) -C external/u-boot CROSS_COMPILE=aarch64-none-elf-")
         end
     end)
+    on_clean(function (target)
+        os.exec("make -C external/u-boot clean")
+    end)
