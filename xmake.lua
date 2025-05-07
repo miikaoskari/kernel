@@ -11,6 +11,12 @@ set_toolchains("aarch64-none-elf")
 set_arch("aarch64")
 set_languages("gnu17")
 
+rule("mode.debug")
+    on_load(function (target)
+        target:add("cflags", "-g")
+        target:add("cflags", "-O0")
+    end)
+
 -- define the kernel target
 target("kernel8.elf")
     set_kind("binary")
